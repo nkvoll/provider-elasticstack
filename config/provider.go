@@ -10,12 +10,13 @@ import (
 
 	ujconfig "github.com/upbound/upjet/pkg/config"
 
-	"github.com/upbound/upjet-provider-template/config/null"
+	"github.com/elastic/provider-elasticstack/config/kibana_action_connector"
+	"github.com/elastic/provider-elasticstack/config/kibana_alerting_rule"
 )
 
 const (
-	resourcePrefix = "template"
-	modulePath     = "github.com/upbound/upjet-provider-template"
+	resourcePrefix = "elasticstack"
+	modulePath     = "github.com/elastic/provider-elasticstack"
 )
 
 //go:embed schema.json
@@ -27,7 +28,7 @@ var providerMetadata string
 // GetProvider returns provider configuration
 func GetProvider() *ujconfig.Provider {
 	pc := ujconfig.NewProvider([]byte(providerSchema), resourcePrefix, modulePath, []byte(providerMetadata),
-		ujconfig.WithRootGroup("template.upbound.io"),
+		ujconfig.WithRootGroup("elasticstack.k8s.elastic.co"),
 		ujconfig.WithIncludeList(ExternalNameConfigured()),
 		ujconfig.WithFeaturesPackage("internal/features"),
 		ujconfig.WithDefaultResourceOptions(
@@ -36,7 +37,8 @@ func GetProvider() *ujconfig.Provider {
 
 	for _, configure := range []func(provider *ujconfig.Provider){
 		// add custom config functions
-		null.Configure,
+		kibana_action_connector.Configure,
+		kibana_alerting_rule.Configure,
 	} {
 		configure(pc)
 	}

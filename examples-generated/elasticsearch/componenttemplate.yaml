@@ -1,0 +1,36 @@
+apiVersion: elasticsearch.elasticstack.k8s.elastic.co/v1alpha1
+kind: ComponentTemplate
+metadata:
+  annotations:
+    meta.upbound.io/example-id: elasticsearch/v1alpha1/componenttemplate
+  labels:
+    testing.upbound.io/example-name: my_template
+  name: my-template
+spec:
+  forProvider:
+    name: my_template
+    template:
+    - aliases:
+      - name: my_template_test
+      settings: |-
+        ${jsonencode({
+              number_of_shards = "3"
+            })}
+
+---
+
+apiVersion: elasticsearch.elasticstack.k8s.elastic.co/v1alpha1
+kind: IndexTemplate
+metadata:
+  annotations:
+    meta.upbound.io/example-id: elasticsearch/v1alpha1/componenttemplate
+  labels:
+    testing.upbound.io/example-name: my_template
+  name: my-template
+spec:
+  forProvider:
+    composedOf:
+    - ${elasticstack_elasticsearch_component_template.my_template.name}
+    indexPatterns:
+    - stream*
+    name: my_data_stream

@@ -1,0 +1,19 @@
+apiVersion: kibana.elasticstack.k8s.elastic.co/v1alpha1
+kind: Space
+metadata:
+  annotations:
+    meta.upbound.io/example-id: kibana/v1alpha1/space
+  labels:
+    testing.upbound.io/example-name: example
+  name: example
+spec:
+  forProvider:
+    description: A fresh space for testing visualisations
+    disabledFeatures:
+    - ingestManager
+    - enterpriseSearch
+    initials: ts
+    name: Test Space
+    spaceIdSelector:
+      matchLabels:
+        testing.upbound.io/example-name: example

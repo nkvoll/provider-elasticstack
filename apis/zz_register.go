@@ -10,7 +10,9 @@ package apis
 import (
 	"k8s.io/apimachinery/pkg/runtime"
 
-	v1alpha1 "github.com/elastic/provider-elasticstack/apis/null/v1alpha1"
+	v1alpha1 "github.com/elastic/provider-elasticstack/apis/elasticsearch/v1alpha1"
+	v1alpha1fleet "github.com/elastic/provider-elasticstack/apis/fleet/v1alpha1"
+	v1alpha1kibana "github.com/elastic/provider-elasticstack/apis/kibana/v1alpha1"
 	v1alpha1apis "github.com/elastic/provider-elasticstack/apis/v1alpha1"
 	v1beta1 "github.com/elastic/provider-elasticstack/apis/v1beta1"
 )
@@ -19,6 +21,8 @@ func init() {
 	// Register the types with the Scheme so the components can map objects to GroupVersionKinds and back
 	AddToSchemes = append(AddToSchemes,
 		v1alpha1.SchemeBuilder.AddToScheme,
+		v1alpha1fleet.SchemeBuilder.AddToScheme,
+		v1alpha1kibana.SchemeBuilder.AddToScheme,
 		v1alpha1apis.SchemeBuilder.AddToScheme,
 		v1beta1.SchemeBuilder.AddToScheme,
 	)

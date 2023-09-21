@@ -1,0 +1,30 @@
+apiVersion: kibana.elasticstack.k8s.elastic.co/v1alpha1
+kind: SLO
+metadata:
+  annotations:
+    meta.upbound.io/example-id: kibana/v1alpha1/slo
+  labels:
+    testing.upbound.io/example-name: auth_server_latency
+  name: auth-server-latency
+spec:
+  forProvider:
+    apmLatencyIndicator:
+    - environment: production
+      index: metrics-apm*
+      service: auth
+      threshold: 500
+      transactionName: GET /auth
+      transactionType: request
+    budgetingMethod: timeslices
+    description: Ensures auth server is responding in time
+    name: Auth server latency
+    objective:
+    - target: 0.95
+      timesliceTarget: 0.95
+      timesliceWindow: 5m
+    settings:
+    - frequency: 5m
+      syncDelay: 5m
+    timeWindow:
+    - duration: 7d
+      type: rolling

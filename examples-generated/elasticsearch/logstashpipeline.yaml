@@ -1,0 +1,36 @@
+apiVersion: elasticsearch.elasticstack.k8s.elastic.co/v1alpha1
+kind: LogstashPipeline
+metadata:
+  annotations:
+    meta.upbound.io/example-id: elasticsearch/v1alpha1/logstashpipeline
+  labels:
+    testing.upbound.io/example-name: example
+  name: example
+spec:
+  forProvider:
+    description: This is an example pipeline
+    pipeline: |
+      input{}
+      filter{}
+      output{}
+    pipelineBatchDelay: 50
+    pipelineBatchSize: 125
+    pipelineEcsCompatibility: disabled
+    pipelineId: test_pipeline
+    pipelineMetadata: |-
+      ${jsonencode({
+          "type"    = "logstash_pipeline"
+          "version" = 1
+        })}
+    pipelineOrdered: auto
+    pipelinePluginClassloaders: false
+    pipelineUnsafeShutdown: false
+    pipelineWorkers: 1
+    queueCheckpointAcks: 1024
+    queueCheckpointRetry: true
+    queueCheckpointWrites: 1024
+    queueDrain: false
+    queueMaxBytes: 1gb
+    queueMaxEvents: 0
+    queuePageCapacity: 64mb
+    queueType: persisted

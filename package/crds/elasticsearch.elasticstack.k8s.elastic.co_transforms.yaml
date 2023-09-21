@@ -1,0 +1,945 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.13.0
+  name: transforms.elasticsearch.elasticstack.k8s.elastic.co
+spec:
+  group: elasticsearch.elasticstack.k8s.elastic.co
+  names:
+    categories:
+    - crossplane
+    - managed
+    - elasticstack
+    kind: Transform
+    listKind: TransformList
+    plural: transforms
+    singular: transform
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.conditions[?(@.type=='Ready')].status
+      name: READY
+      type: string
+    - jsonPath: .status.conditions[?(@.type=='Synced')].status
+      name: SYNCED
+      type: string
+    - jsonPath: .metadata.annotations.crossplane\.io/external-name
+      name: EXTERNAL-NAME
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: AGE
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Transform is the Schema for the Transforms API. Manages transforms.
+          Transforms enable you to convert existing Elasticsearch indices into summarized
+          indices.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: TransformSpec defines the desired state of Transform
+            properties:
+              deletionPolicy:
+                default: Delete
+                description: 'DeletionPolicy specifies what will happen to the underlying
+                  external when this managed resource is deleted - either "Delete"
+                  or "Orphan" the external resource. This field is planned to be deprecated
+                  in favor of the ManagementPolicies field in a future release. Currently,
+                  both could be set independently and non-default values would be
+                  honored if the feature flag is enabled. See the design doc for more
+                  information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223'
+                enum:
+                - Orphan
+                - Delete
+                type: string
+              forProvider:
+                properties:
+                  alignCheckpoints:
+                    description: (Boolean) Specifies whether the transform checkpoint
+                      ranges should be optimized for performance. Specifies whether
+                      the transform checkpoint ranges should be optimized for performance.
+                    type: boolean
+                  datesAsEpochMillis:
+                    description: (Boolean) Defines if dates in the output should be
+                      written as ISO formatted string (default) or as millis since
+                      epoch. Defines if dates in the output should be written as ISO
+                      formatted string (default) or as millis since epoch.
+                    type: boolean
+                  deduceMappings:
+                    description: (Boolean) Specifies whether the transform should
+                      deduce the destination index mappings from the transform config.
+                      Specifies whether the transform should deduce the destination
+                      index mappings from the transform config.
+                    type: boolean
+                  deferValidation:
+                    description: (Boolean) When true, deferrable validations are not
+                      run upon creation, but rather when the transform is started.
+                      This behavior may be desired if the source index does not exist
+                      until after the transform is created. Default is false When
+                      true, deferrable validations are not run upon creation, but
+                      rather when the transform is started. This behavior may be desired
+                      if the source index does not exist until after the transform
+                      is created. Default is `false`
+                    type: boolean
+                  description:
+                    description: (String) Free text description of the transform.
+                      Free text description of the transform.
+                    type: string
+                  destination:
+                    description: '(Block List, Min: 1, Max: 1) The destination for
+                      the transform. (see below for nested schema) The destination
+                      for the transform.'
+                    items:
+                      properties:
+                        index:
+                          description: (String) The destination index for the transform.
+                            The destination index for the transform.
+                          type: string
+                        pipeline:
+                          description: (String) The unique identifier for an ingest
+                            pipeline. The unique identifier for an ingest pipeline.
+                          type: string
+                      type: object
+                    type: array
+                  docsPerSecond:
+                    description: (Number) Specifies a limit on the number of input
+                      documents per second. Default (unset) value disables throttling.
+                      Specifies a limit on the number of input documents per second.
+                      Default (unset) value disables throttling.
+                    type: number
+                  enabled:
+                    description: (Boolean) Controls wether the transform should be
+                      started or stopped. Default is false (stopped). Controls wether
+                      the transform should be started or stopped. Default is `false`
+                      (stopped).
+                    type: boolean
+                  frequency:
+                    description: (String) The interval between checks for changes
+                      in the source indices when the transform is running continuously.
+                      Defaults to 1m. The interval between checks for changes in the
+                      source indices when the transform is running continuously. Defaults
+                      to `1m`.
+                    type: string
+                  latest:
+                    description: (String) The latest method transforms the data by
+                      finding the latest document for each unique key. JSON definition
+                      expected. Either 'pivot' or 'latest' must be present. The latest
+                      method transforms the data by finding the latest document for
+                      each unique key. JSON definition expected. Either 'pivot' or
+                      'latest' must be present.
+                    type: string
+                  maxPageSearchSize:
+                    description: (Number) Defines the initial page size to use for
+                      the composite aggregation for each checkpoint. Default is 500.
+                      Defines the initial page size to use for the composite aggregation
+                      for each checkpoint. Default is 500.
+                    type: number
+                  metadata:
+                    description: (String) Defines optional transform metadata. Defines
+                      optional transform metadata.
+                    type: string
+                  name:
+                    description: (String) Name of the transform you wish to create.
+                      Name of the transform you wish to create.
+                    type: string
+                  numFailureRetries:
+                    description: level setting num_transform_failure_retries. Defines
+                      the number of retries on a recoverable failure before the transform
+                      task is marked as failed. The default value is the cluster-level
+                      setting num_transform_failure_retries.
+                    type: number
+                  pivot:
+                    description: (String) The pivot method transforms the data by
+                      aggregating and grouping it. JSON definition expected. Either
+                      'pivot' or 'latest' must be present. The pivot method transforms
+                      the data by aggregating and grouping it. JSON definition expected.
+                      Either 'pivot' or 'latest' must be present.
+                    type: string
+                  retentionPolicy:
+                    description: '(Block List, Max: 1) Defines a retention policy
+                      for the transform. (see below for nested schema) Defines a retention
+                      policy for the transform.'
+                    items:
+                      properties:
+                        time:
+                          description: '(Block List, Min: 1, Max: 1) Specifies that
+                            the transform uses a time field to set the retention policy.
+                            This is currently the only supported option. (see below
+                            for nested schema) Specifies that the transform uses a
+                            time field to set the retention policy. This is currently
+                            the only supported option.'
+                          items:
+                            properties:
+                              field:
+                                description: (String) The date field that is used
+                                  to calculate the age of the document. The date field
+                                  that is used to calculate the age of the document.
+                                type: string
+                              maxAge:
+                                description: (String) Specifies the maximum age of
+                                  a document in the destination index. Specifies the
+                                  maximum age of a document in the destination index.
+                                type: string
+                            type: object
+                          type: array
+                      type: object
+                    type: array
+                  source:
+                    description: '(Block List, Min: 1, Max: 1) The source of the data
+                      for the transform. (see below for nested schema) The source
+                      of the data for the transform.'
+                    items:
+                      properties:
+                        indices:
+                          description: (List of String) The source indices for the
+                            transform. The source indices for the transform.
+                          items:
+                            type: string
+                          type: array
+                        query:
+                          description: (String) A query clause that retrieves a subset
+                            of data from the source index. A query clause that retrieves
+                            a subset of data from the source index.
+                          type: string
+                        runtimeMappings:
+                          description: time runtime fields that can be used by the
+                            transform. Definitions of search-time runtime fields that
+                            can be used by the transform.
+                          type: string
+                      type: object
+                    type: array
+                  sync:
+                    description: '(Block List, Max: 1) Defines the properties transforms
+                      require to run continuously. (see below for nested schema) Defines
+                      the properties transforms require to run continuously.'
+                    items:
+                      properties:
+                        time:
+                          description: '(Block List, Min: 1, Max: 1) Specifies that
+                            the transform uses a time field to set the retention policy.
+                            This is currently the only supported option. (see below
+                            for nested schema) Specifies that the transform uses a
+                            time field to synchronize the source and destination indices.
+                            This is currently the only supported option.'
+                          items:
+                            properties:
+                              delay:
+                                description: (String) The time delay between the current
+                                  time and the latest input data time. The default
+                                  value is 60s. The time delay between the current
+                                  time and the latest input data time. The default
+                                  value is 60s.
+                                type: string
+                              field:
+                                description: (String) The date field that is used
+                                  to calculate the age of the document. The date field
+                                  that is used to identify new documents in the source.
+                                type: string
+                            type: object
+                          type: array
+                      type: object
+                    type: array
+                  timeout:
+                    description: (String) Period to wait for a response from Elastisearch
+                      when performing any management operation. If no response is
+                      received before the timeout expires, the operation fails and
+                      returns an error. Defaults to 30s. Period to wait for a response
+                      from Elastisearch when performing any management operation.
+                      If no response is received before the timeout expires, the operation
+                      fails and returns an error. Defaults to `30s`.
+                    type: string
+                  unattended:
+                    description: (Boolean) In unattended mode, the transform retries
+                      indefinitely in case of an error which means the transform never
+                      fails. In unattended mode, the transform retries indefinitely
+                      in case of an error which means the transform never fails.
+                    type: boolean
+                type: object
+              initProvider:
+                description: THIS IS AN ALPHA FIELD. Do not use it in production.
+                  It is not honored unless the relevant Crossplane feature flag is
+                  enabled, and may be changed or removed without notice. InitProvider
+                  holds the same fields as ForProvider, with the exception of Identifier
+                  and other resource reference fields. The fields that are in InitProvider
+                  are merged into ForProvider when the resource is created. The same
+                  fields are also added to the terraform ignore_changes hook, to avoid
+                  updating them after creation. This is useful for fields that are
+                  required on creation, but we do not desire to update them after
+                  creation, for example because of an external controller is managing
+                  them, like an autoscaler.
+                properties:
+                  alignCheckpoints:
+                    description: (Boolean) Specifies whether the transform checkpoint
+                      ranges should be optimized for performance. Specifies whether
+                      the transform checkpoint ranges should be optimized for performance.
+                    type: boolean
+                  datesAsEpochMillis:
+                    description: (Boolean) Defines if dates in the output should be
+                      written as ISO formatted string (default) or as millis since
+                      epoch. Defines if dates in the output should be written as ISO
+                      formatted string (default) or as millis since epoch.
+                    type: boolean
+                  deduceMappings:
+                    description: (Boolean) Specifies whether the transform should
+                      deduce the destination index mappings from the transform config.
+                      Specifies whether the transform should deduce the destination
+                      index mappings from the transform config.
+                    type: boolean
+                  deferValidation:
+                    description: (Boolean) When true, deferrable validations are not
+                      run upon creation, but rather when the transform is started.
+                      This behavior may be desired if the source index does not exist
+                      until after the transform is created. Default is false When
+                      true, deferrable validations are not run upon creation, but
+                      rather when the transform is started. This behavior may be desired
+                      if the source index does not exist until after the transform
+                      is created. Default is `false`
+                    type: boolean
+                  description:
+                    description: (String) Free text description of the transform.
+                      Free text description of the transform.
+                    type: string
+                  destination:
+                    description: '(Block List, Min: 1, Max: 1) The destination for
+                      the transform. (see below for nested schema) The destination
+                      for the transform.'
+                    items:
+                      properties:
+                        index:
+                          description: (String) The destination index for the transform.
+                            The destination index for the transform.
+                          type: string
+                        pipeline:
+                          description: (String) The unique identifier for an ingest
+                            pipeline. The unique identifier for an ingest pipeline.
+                          type: string
+                      type: object
+                    type: array
+                  docsPerSecond:
+                    description: (Number) Specifies a limit on the number of input
+                      documents per second. Default (unset) value disables throttling.
+                      Specifies a limit on the number of input documents per second.
+                      Default (unset) value disables throttling.
+                    type: number
+                  enabled:
+                    description: (Boolean) Controls wether the transform should be
+                      started or stopped. Default is false (stopped). Controls wether
+                      the transform should be started or stopped. Default is `false`
+                      (stopped).
+                    type: boolean
+                  frequency:
+                    description: (String) The interval between checks for changes
+                      in the source indices when the transform is running continuously.
+                      Defaults to 1m. The interval between checks for changes in the
+                      source indices when the transform is running continuously. Defaults
+                      to `1m`.
+                    type: string
+                  latest:
+                    description: (String) The latest method transforms the data by
+                      finding the latest document for each unique key. JSON definition
+                      expected. Either 'pivot' or 'latest' must be present. The latest
+                      method transforms the data by finding the latest document for
+                      each unique key. JSON definition expected. Either 'pivot' or
+                      'latest' must be present.
+                    type: string
+                  maxPageSearchSize:
+                    description: (Number) Defines the initial page size to use for
+                      the composite aggregation for each checkpoint. Default is 500.
+                      Defines the initial page size to use for the composite aggregation
+                      for each checkpoint. Default is 500.
+                    type: number
+                  metadata:
+                    description: (String) Defines optional transform metadata. Defines
+                      optional transform metadata.
+                    type: string
+                  name:
+                    description: (String) Name of the transform you wish to create.
+                      Name of the transform you wish to create.
+                    type: string
+                  numFailureRetries:
+                    description: level setting num_transform_failure_retries. Defines
+                      the number of retries on a recoverable failure before the transform
+                      task is marked as failed. The default value is the cluster-level
+                      setting num_transform_failure_retries.
+                    type: number
+                  pivot:
+                    description: (String) The pivot method transforms the data by
+                      aggregating and grouping it. JSON definition expected. Either
+                      'pivot' or 'latest' must be present. The pivot method transforms
+                      the data by aggregating and grouping it. JSON definition expected.
+                      Either 'pivot' or 'latest' must be present.
+                    type: string
+                  retentionPolicy:
+                    description: '(Block List, Max: 1) Defines a retention policy
+                      for the transform. (see below for nested schema) Defines a retention
+                      policy for the transform.'
+                    items:
+                      properties:
+                        time:
+                          description: '(Block List, Min: 1, Max: 1) Specifies that
+                            the transform uses a time field to set the retention policy.
+                            This is currently the only supported option. (see below
+                            for nested schema) Specifies that the transform uses a
+                            time field to set the retention policy. This is currently
+                            the only supported option.'
+                          items:
+                            properties:
+                              field:
+                                description: (String) The date field that is used
+                                  to calculate the age of the document. The date field
+                                  that is used to calculate the age of the document.
+                                type: string
+                              maxAge:
+                                description: (String) Specifies the maximum age of
+                                  a document in the destination index. Specifies the
+                                  maximum age of a document in the destination index.
+                                type: string
+                            type: object
+                          type: array
+                      type: object
+                    type: array
+                  source:
+                    description: '(Block List, Min: 1, Max: 1) The source of the data
+                      for the transform. (see below for nested schema) The source
+                      of the data for the transform.'
+                    items:
+                      properties:
+                        indices:
+                          description: (List of String) The source indices for the
+                            transform. The source indices for the transform.
+                          items:
+                            type: string
+                          type: array
+                        query:
+                          description: (String) A query clause that retrieves a subset
+                            of data from the source index. A query clause that retrieves
+                            a subset of data from the source index.
+                          type: string
+                        runtimeMappings:
+                          description: time runtime fields that can be used by the
+                            transform. Definitions of search-time runtime fields that
+                            can be used by the transform.
+                          type: string
+                      type: object
+                    type: array
+                  sync:
+                    description: '(Block List, Max: 1) Defines the properties transforms
+                      require to run continuously. (see below for nested schema) Defines
+                      the properties transforms require to run continuously.'
+                    items:
+                      properties:
+                        time:
+                          description: '(Block List, Min: 1, Max: 1) Specifies that
+                            the transform uses a time field to set the retention policy.
+                            This is currently the only supported option. (see below
+                            for nested schema) Specifies that the transform uses a
+                            time field to synchronize the source and destination indices.
+                            This is currently the only supported option.'
+                          items:
+                            properties:
+                              delay:
+                                description: (String) The time delay between the current
+                                  time and the latest input data time. The default
+                                  value is 60s. The time delay between the current
+                                  time and the latest input data time. The default
+                                  value is 60s.
+                                type: string
+                              field:
+                                description: (String) The date field that is used
+                                  to calculate the age of the document. The date field
+                                  that is used to identify new documents in the source.
+                                type: string
+                            type: object
+                          type: array
+                      type: object
+                    type: array
+                  timeout:
+                    description: (String) Period to wait for a response from Elastisearch
+                      when performing any management operation. If no response is
+                      received before the timeout expires, the operation fails and
+                      returns an error. Defaults to 30s. Period to wait for a response
+                      from Elastisearch when performing any management operation.
+                      If no response is received before the timeout expires, the operation
+                      fails and returns an error. Defaults to `30s`.
+                    type: string
+                  unattended:
+                    description: (Boolean) In unattended mode, the transform retries
+                      indefinitely in case of an error which means the transform never
+                      fails. In unattended mode, the transform retries indefinitely
+                      in case of an error which means the transform never fails.
+                    type: boolean
+                type: object
+              managementPolicies:
+                default:
+                - '*'
+                description: 'THIS IS AN ALPHA FIELD. Do not use it in production.
+                  It is not honored unless the relevant Crossplane feature flag is
+                  enabled, and may be changed or removed without notice. ManagementPolicies
+                  specify the array of actions Crossplane is allowed to take on the
+                  managed and external resources. This field is planned to replace
+                  the DeletionPolicy field in a future release. Currently, both could
+                  be set independently and non-default values would be honored if
+                  the feature flag is enabled. If both are custom, the DeletionPolicy
+                  field will be ignored. See the design doc for more information:
+                  https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223
+                  and this one: https://github.com/crossplane/crossplane/blob/444267e84783136daa93568b364a5f01228cacbe/design/one-pager-ignore-changes.md'
+                items:
+                  description: A ManagementAction represents an action that the Crossplane
+                    controllers can take on an external resource.
+                  enum:
+                  - Observe
+                  - Create
+                  - Update
+                  - Delete
+                  - LateInitialize
+                  - '*'
+                  type: string
+                type: array
+              providerConfigRef:
+                default:
+                  name: default
+                description: ProviderConfigReference specifies how the provider that
+                  will be used to create, observe, update, and delete this managed
+                  resource should be configured.
+                properties:
+                  name:
+                    description: Name of the referenced object.
+                    type: string
+                  policy:
+                    description: Policies for referencing.
+                    properties:
+                      resolution:
+                        default: Required
+                        description: Resolution specifies whether resolution of this
+                          reference is required. The default is 'Required', which
+                          means the reconcile will fail if the reference cannot be
+                          resolved. 'Optional' means this reference will be a no-op
+                          if it cannot be resolved.
+                        enum:
+                        - Required
+                        - Optional
+                        type: string
+                      resolve:
+                        description: Resolve specifies when this reference should
+                          be resolved. The default is 'IfNotPresent', which will attempt
+                          to resolve the reference only when the corresponding field
+                          is not present. Use 'Always' to resolve the reference on
+                          every reconcile.
+                        enum:
+                        - Always
+                        - IfNotPresent
+                        type: string
+                    type: object
+                required:
+                - name
+                type: object
+              providerRef:
+                description: 'ProviderReference specifies the provider that will be
+                  used to create, observe, update, and delete this managed resource.
+                  Deprecated: Please use ProviderConfigReference, i.e. `providerConfigRef`'
+                properties:
+                  name:
+                    description: Name of the referenced object.
+                    type: string
+                  policy:
+                    description: Policies for referencing.
+                    properties:
+                      resolution:
+                        default: Required
+                        description: Resolution specifies whether resolution of this
+                          reference is required. The default is 'Required', which
+                          means the reconcile will fail if the reference cannot be
+                          resolved. 'Optional' means this reference will be a no-op
+                          if it cannot be resolved.
+                        enum:
+                        - Required
+                        - Optional
+                        type: string
+                      resolve:
+                        description: Resolve specifies when this reference should
+                          be resolved. The default is 'IfNotPresent', which will attempt
+                          to resolve the reference only when the corresponding field
+                          is not present. Use 'Always' to resolve the reference on
+                          every reconcile.
+                        enum:
+                        - Always
+                        - IfNotPresent
+                        type: string
+                    type: object
+                required:
+                - name
+                type: object
+              publishConnectionDetailsTo:
+                description: PublishConnectionDetailsTo specifies the connection secret
+                  config which contains a name, metadata and a reference to secret
+                  store config to which any connection details for this managed resource
+                  should be written. Connection details frequently include the endpoint,
+                  username, and password required to connect to the managed resource.
+                properties:
+                  configRef:
+                    default:
+                      name: default
+                    description: SecretStoreConfigRef specifies which secret store
+                      config should be used for this ConnectionSecret.
+                    properties:
+                      name:
+                        description: Name of the referenced object.
+                        type: string
+                      policy:
+                        description: Policies for referencing.
+                        properties:
+                          resolution:
+                            default: Required
+                            description: Resolution specifies whether resolution of
+                              this reference is required. The default is 'Required',
+                              which means the reconcile will fail if the reference
+                              cannot be resolved. 'Optional' means this reference
+                              will be a no-op if it cannot be resolved.
+                            enum:
+                            - Required
+                            - Optional
+                            type: string
+                          resolve:
+                            description: Resolve specifies when this reference should
+                              be resolved. The default is 'IfNotPresent', which will
+                              attempt to resolve the reference only when the corresponding
+                              field is not present. Use 'Always' to resolve the reference
+                              on every reconcile.
+                            enum:
+                            - Always
+                            - IfNotPresent
+                            type: string
+                        type: object
+                    required:
+                    - name
+                    type: object
+                  metadata:
+                    description: Metadata is the metadata for connection secret.
+                    properties:
+                      annotations:
+                        additionalProperties:
+                          type: string
+                        description: Annotations are the annotations to be added to
+                          connection secret. - For Kubernetes secrets, this will be
+                          used as "metadata.annotations". - It is up to Secret Store
+                          implementation for others store types.
+                        type: object
+                      labels:
+                        additionalProperties:
+                          type: string
+                        description: Labels are the labels/tags to be added to connection
+                          secret. - For Kubernetes secrets, this will be used as "metadata.labels".
+                          - It is up to Secret Store implementation for others store
+                          types.
+                        type: object
+                      type:
+                        description: Type is the SecretType for the connection secret.
+                          - Only valid for Kubernetes Secret Stores.
+                        type: string
+                    type: object
+                  name:
+                    description: Name is the name of the connection secret.
+                    type: string
+                required:
+                - name
+                type: object
+              writeConnectionSecretToRef:
+                description: WriteConnectionSecretToReference specifies the namespace
+                  and name of a Secret to which any connection details for this managed
+                  resource should be written. Connection details frequently include
+                  the endpoint, username, and password required to connect to the
+                  managed resource. This field is planned to be replaced in a future
+                  release in favor of PublishConnectionDetailsTo. Currently, both
+                  could be set independently and connection details would be published
+                  to both without affecting each other.
+                properties:
+                  name:
+                    description: Name of the secret.
+                    type: string
+                  namespace:
+                    description: Namespace of the secret.
+                    type: string
+                required:
+                - name
+                - namespace
+                type: object
+            required:
+            - forProvider
+            type: object
+            x-kubernetes-validations:
+            - message: destination is a required parameter
+              rule: '!(''*'' in self.managementPolicies || ''Create'' in self.managementPolicies
+                || ''Update'' in self.managementPolicies) || has(self.forProvider.destination)
+                || has(self.initProvider.destination)'
+            - message: name is a required parameter
+              rule: '!(''*'' in self.managementPolicies || ''Create'' in self.managementPolicies
+                || ''Update'' in self.managementPolicies) || has(self.forProvider.name)
+                || has(self.initProvider.name)'
+            - message: source is a required parameter
+              rule: '!(''*'' in self.managementPolicies || ''Create'' in self.managementPolicies
+                || ''Update'' in self.managementPolicies) || has(self.forProvider.source)
+                || has(self.initProvider.source)'
+          status:
+            description: TransformStatus defines the observed state of Transform.
+            properties:
+              atProvider:
+                properties:
+                  alignCheckpoints:
+                    description: (Boolean) Specifies whether the transform checkpoint
+                      ranges should be optimized for performance. Specifies whether
+                      the transform checkpoint ranges should be optimized for performance.
+                    type: boolean
+                  datesAsEpochMillis:
+                    description: (Boolean) Defines if dates in the output should be
+                      written as ISO formatted string (default) or as millis since
+                      epoch. Defines if dates in the output should be written as ISO
+                      formatted string (default) or as millis since epoch.
+                    type: boolean
+                  deduceMappings:
+                    description: (Boolean) Specifies whether the transform should
+                      deduce the destination index mappings from the transform config.
+                      Specifies whether the transform should deduce the destination
+                      index mappings from the transform config.
+                    type: boolean
+                  deferValidation:
+                    description: (Boolean) When true, deferrable validations are not
+                      run upon creation, but rather when the transform is started.
+                      This behavior may be desired if the source index does not exist
+                      until after the transform is created. Default is false When
+                      true, deferrable validations are not run upon creation, but
+                      rather when the transform is started. This behavior may be desired
+                      if the source index does not exist until after the transform
+                      is created. Default is `false`
+                    type: boolean
+                  description:
+                    description: (String) Free text description of the transform.
+                      Free text description of the transform.
+                    type: string
+                  destination:
+                    description: '(Block List, Min: 1, Max: 1) The destination for
+                      the transform. (see below for nested schema) The destination
+                      for the transform.'
+                    items:
+                      properties:
+                        index:
+                          description: (String) The destination index for the transform.
+                            The destination index for the transform.
+                          type: string
+                        pipeline:
+                          description: (String) The unique identifier for an ingest
+                            pipeline. The unique identifier for an ingest pipeline.
+                          type: string
+                      type: object
+                    type: array
+                  docsPerSecond:
+                    description: (Number) Specifies a limit on the number of input
+                      documents per second. Default (unset) value disables throttling.
+                      Specifies a limit on the number of input documents per second.
+                      Default (unset) value disables throttling.
+                    type: number
+                  enabled:
+                    description: (Boolean) Controls wether the transform should be
+                      started or stopped. Default is false (stopped). Controls wether
+                      the transform should be started or stopped. Default is `false`
+                      (stopped).
+                    type: boolean
+                  frequency:
+                    description: (String) The interval between checks for changes
+                      in the source indices when the transform is running continuously.
+                      Defaults to 1m. The interval between checks for changes in the
+                      source indices when the transform is running continuously. Defaults
+                      to `1m`.
+                    type: string
+                  id:
+                    description: (String) Internal identifier of the resource
+                    type: string
+                  latest:
+                    description: (String) The latest method transforms the data by
+                      finding the latest document for each unique key. JSON definition
+                      expected. Either 'pivot' or 'latest' must be present. The latest
+                      method transforms the data by finding the latest document for
+                      each unique key. JSON definition expected. Either 'pivot' or
+                      'latest' must be present.
+                    type: string
+                  maxPageSearchSize:
+                    description: (Number) Defines the initial page size to use for
+                      the composite aggregation for each checkpoint. Default is 500.
+                      Defines the initial page size to use for the composite aggregation
+                      for each checkpoint. Default is 500.
+                    type: number
+                  metadata:
+                    description: (String) Defines optional transform metadata. Defines
+                      optional transform metadata.
+                    type: string
+                  name:
+                    description: (String) Name of the transform you wish to create.
+                      Name of the transform you wish to create.
+                    type: string
+                  numFailureRetries:
+                    description: level setting num_transform_failure_retries. Defines
+                      the number of retries on a recoverable failure before the transform
+                      task is marked as failed. The default value is the cluster-level
+                      setting num_transform_failure_retries.
+                    type: number
+                  pivot:
+                    description: (String) The pivot method transforms the data by
+                      aggregating and grouping it. JSON definition expected. Either
+                      'pivot' or 'latest' must be present. The pivot method transforms
+                      the data by aggregating and grouping it. JSON definition expected.
+                      Either 'pivot' or 'latest' must be present.
+                    type: string
+                  retentionPolicy:
+                    description: '(Block List, Max: 1) Defines a retention policy
+                      for the transform. (see below for nested schema) Defines a retention
+                      policy for the transform.'
+                    items:
+                      properties:
+                        time:
+                          description: '(Block List, Min: 1, Max: 1) Specifies that
+                            the transform uses a time field to set the retention policy.
+                            This is currently the only supported option. (see below
+                            for nested schema) Specifies that the transform uses a
+                            time field to set the retention policy. This is currently
+                            the only supported option.'
+                          items:
+                            properties:
+                              field:
+                                description: (String) The date field that is used
+                                  to calculate the age of the document. The date field
+                                  that is used to calculate the age of the document.
+                                type: string
+                              maxAge:
+                                description: (String) Specifies the maximum age of
+                                  a document in the destination index. Specifies the
+                                  maximum age of a document in the destination index.
+                                type: string
+                            type: object
+                          type: array
+                      type: object
+                    type: array
+                  source:
+                    description: '(Block List, Min: 1, Max: 1) The source of the data
+                      for the transform. (see below for nested schema) The source
+                      of the data for the transform.'
+                    items:
+                      properties:
+                        indices:
+                          description: (List of String) The source indices for the
+                            transform. The source indices for the transform.
+                          items:
+                            type: string
+                          type: array
+                        query:
+                          description: (String) A query clause that retrieves a subset
+                            of data from the source index. A query clause that retrieves
+                            a subset of data from the source index.
+                          type: string
+                        runtimeMappings:
+                          description: time runtime fields that can be used by the
+                            transform. Definitions of search-time runtime fields that
+                            can be used by the transform.
+                          type: string
+                      type: object
+                    type: array
+                  sync:
+                    description: '(Block List, Max: 1) Defines the properties transforms
+                      require to run continuously. (see below for nested schema) Defines
+                      the properties transforms require to run continuously.'
+                    items:
+                      properties:
+                        time:
+                          description: '(Block List, Min: 1, Max: 1) Specifies that
+                            the transform uses a time field to set the retention policy.
+                            This is currently the only supported option. (see below
+                            for nested schema) Specifies that the transform uses a
+                            time field to synchronize the source and destination indices.
+                            This is currently the only supported option.'
+                          items:
+                            properties:
+                              delay:
+                                description: (String) The time delay between the current
+                                  time and the latest input data time. The default
+                                  value is 60s. The time delay between the current
+                                  time and the latest input data time. The default
+                                  value is 60s.
+                                type: string
+                              field:
+                                description: (String) The date field that is used
+                                  to calculate the age of the document. The date field
+                                  that is used to identify new documents in the source.
+                                type: string
+                            type: object
+                          type: array
+                      type: object
+                    type: array
+                  timeout:
+                    description: (String) Period to wait for a response from Elastisearch
+                      when performing any management operation. If no response is
+                      received before the timeout expires, the operation fails and
+                      returns an error. Defaults to 30s. Period to wait for a response
+                      from Elastisearch when performing any management operation.
+                      If no response is received before the timeout expires, the operation
+                      fails and returns an error. Defaults to `30s`.
+                    type: string
+                  unattended:
+                    description: (Boolean) In unattended mode, the transform retries
+                      indefinitely in case of an error which means the transform never
+                      fails. In unattended mode, the transform retries indefinitely
+                      in case of an error which means the transform never fails.
+                    type: boolean
+                type: object
+              conditions:
+                description: Conditions of the resource.
+                items:
+                  description: A Condition that may apply to a resource.
+                  properties:
+                    lastTransitionTime:
+                      description: LastTransitionTime is the last time this condition
+                        transitioned from one status to another.
+                      format: date-time
+                      type: string
+                    message:
+                      description: A Message containing details about this condition's
+                        last transition from one status to another, if any.
+                      type: string
+                    reason:
+                      description: A Reason for this condition's last transition from
+                        one status to another.
+                      type: string
+                    status:
+                      description: Status of this condition; is it currently True,
+                        False, or Unknown?
+                      type: string
+                    type:
+                      description: Type of this condition. At most one of each condition
+                        type may apply to a resource at any point in time.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

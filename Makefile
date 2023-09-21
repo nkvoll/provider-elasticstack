@@ -7,7 +7,7 @@ PROJECT_REPO ?= github.com/elastic/$(PROJECT_NAME)
 export TERRAFORM_VERSION ?= 1.5.7
 
 # TODO: not sure these values are correct
-export TERRAFORM_PROVIDER_SOURCE ?= integrations/github
+export TERRAFORM_PROVIDER_SOURCE ?= elastic/elasticstack
 export TERRAFORM_PROVIDER_REPO ?= https://github.com/elastic/terraform-provider-elasticstack
 export TERRAFORM_PROVIDER_VERSION ?= 0.7.0
 export TERRAFORM_PROVIDER_DOWNLOAD_NAME ?= terraform-provider-elasticstack

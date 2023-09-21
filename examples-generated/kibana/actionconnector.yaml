@@ -1,0 +1,17 @@
+apiVersion: kibana.elasticstack.k8s.elastic.co/v1alpha1
+kind: ActionConnector
+metadata:
+  annotations:
+    meta.upbound.io/example-id: kibana/v1alpha1/actionconnector
+  labels:
+    testing.upbound.io/example-name: example
+  name: example
+spec:
+  forProvider:
+    config: |-
+      ${jsonencode({
+          index   = ".kibana"
+          refresh = true
+        })}
+    connectorTypeId: .index
+    name: '%s'

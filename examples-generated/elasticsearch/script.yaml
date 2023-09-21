@@ -1,0 +1,14 @@
+apiVersion: elasticsearch.elasticstack.k8s.elastic.co/v1alpha1
+kind: Script
+metadata:
+  annotations:
+    meta.upbound.io/example-id: elasticsearch/v1alpha1/script
+  labels:
+    testing.upbound.io/example-name: my_script
+  name: my-script
+spec:
+  forProvider:
+    context: score
+    lang: painless
+    scriptId: my_script
+    source: Math.log(_score * 2) + params['my_modifier']

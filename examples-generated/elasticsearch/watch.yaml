@@ -1,0 +1,36 @@
+apiVersion: elasticsearch.elasticstack.k8s.elastic.co/v1alpha1
+kind: Watch
+metadata:
+  annotations:
+    meta.upbound.io/example-id: elasticsearch/v1alpha1/watch
+  labels:
+    testing.upbound.io/example-name: example
+  name: example
+spec:
+  forProvider:
+    actions: ${jsonencode({})}
+    active: true
+    condition: |-
+      ${jsonencode({
+          "always" = {}
+        })}
+    input: |-
+      ${jsonencode({
+          "none" = {}
+        })}
+    metadata: |-
+      ${jsonencode({
+          "example_key" = "example_value"
+        })}
+    throttlePeriodInMillis: 10000
+    transform: |-
+      ${jsonencode({
+          "script" = "return [ 'time' : ctx.trigger.scheduled_time ]"
+        })}
+    trigger: |-
+      ${jsonencode({
+          "schedule" = {
+            "cron" = "0 0/1 * * * ?"
+          }
+        })}
+    watchId: test_watch

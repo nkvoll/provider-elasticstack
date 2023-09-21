@@ -1,0 +1,30 @@
+apiVersion: elasticsearch.elasticstack.k8s.elastic.co/v1alpha1
+kind: SecurityAPIKey
+metadata:
+  annotations:
+    meta.upbound.io/example-id: elasticsearch/v1alpha1/securityapikey
+  labels:
+    testing.upbound.io/example-name: api_key
+  name: api-key
+spec:
+  forProvider:
+    expiration: 1d
+    metadata: |-
+      ${jsonencode({
+          "env"    = "testing"
+          "open"   = false
+          "number" = 49
+        })}
+    name: My API key
+    roleDescriptors: |-
+      ${jsonencode({
+          role-a = {
+            cluster = ["all"],
+            indices = [
+              {
+                names      = ["index-a*"],
+                privileges = ["read"]
+              }
+            ]
+          }
+        })}

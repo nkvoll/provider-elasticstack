@@ -1,0 +1,26 @@
+apiVersion: elasticsearch.elasticstack.k8s.elastic.co/v1alpha1
+kind: IngestPipeline
+metadata:
+  annotations:
+    meta.upbound.io/example-id: elasticsearch/v1alpha1/ingestpipeline
+  labels:
+    testing.upbound.io/example-name: my_ingest_pipeline
+  name: my-ingest-pipeline
+spec:
+  forProvider:
+    description: My first ingest pipeline managed by Terraform
+    name: my_ingest_pipeline
+    processors:
+    - |-
+      ${jsonencode({
+            set = {
+              description = "My set processor description"
+              field       = "_meta"
+              value       = "indexed"
+            }
+          })}
+    - |2
+          {"json": {
+            "field": "data",
+            "target_field": "parsed_data"
+          }}

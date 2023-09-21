@@ -7,6 +7,7 @@ package clients
 import (
 	"context"
 	"encoding/json"
+	"strings"
 
 	"github.com/crossplane/crossplane-runtime/pkg/resource"
 	"github.com/pkg/errors"
@@ -70,16 +71,16 @@ func TerraformSetupBuilder(version, providerSource, providerVersion string) terr
 
 		ps.Configuration = map[string]any{
 			"elasticsearch": map[string]any{
-				"endpoints": creds["elasticsearch_endpoints"],
-				"username": creds["username"],
-				"password": creds["password"],
-				"insecure": creds["insecure"],
+				"endpoints": strings.Split(creds["elasticsearch_endpoints"], ","),
+				"insecure":  creds["insecure"],
+				"username":  creds["username"],
+				"password":  creds["password"],
 			},
 			"kibana": map[string]any{
-				"endpoints": creds["kibana_endpoints"],
-				"username": creds["username"],
-				"password": creds["password"],
-				"insecure": creds["insecure"],
+				"endpoints": strings.Split(creds["kibana_endpoints"], ","),
+				"insecure":  creds["insecure"],
+				"username":  creds["username"],
+				"password":  creds["password"],
 			},
 		}
 

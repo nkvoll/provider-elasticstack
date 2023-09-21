@@ -9,9 +9,32 @@ import "github.com/upbound/upjet/pkg/config"
 // ExternalNameConfigs contains all external name configurations for this
 // provider.
 var ExternalNameConfigs = map[string]config.ExternalName{
-	// Import requires using a randomly generated ID from provider: nl-2e21sda
-	"elasticstack_kibana_action_connector": config.IdentifierFromProvider,
-	"elasticstack_kibana_alerting_rule": config.IdentifierFromProvider,
+	"elasticstack_elasticsearch_cluster_settings":      config.IdentifierFromProvider,
+	"elasticstack_elasticsearch_component_template":    config.IdentifierFromProvider,
+	"elasticstack_elasticsearch_data_stream":           config.IdentifierFromProvider,
+	"elasticstack_elasticsearch_enrich_policy":         config.IdentifierFromProvider,
+	"elasticstack_elasticsearch_index":                 config.IdentifierFromProvider,
+	"elasticstack_elasticsearch_index_lifecycle":       config.IdentifierFromProvider,
+	"elasticstack_elasticsearch_index_template":        config.IdentifierFromProvider,
+	"elasticstack_elasticsearch_ingest_pipeline":       config.IdentifierFromProvider,
+	"elasticstack_elasticsearch_logstash_pipeline":     config.IdentifierFromProvider,
+	"elasticstack_elasticsearch_script":                config.IdentifierFromProvider,
+	"elasticstack_elasticsearch_security_api_key":      config.IdentifierFromProvider,
+	"elasticstack_elasticsearch_security_role":         config.IdentifierFromProvider,
+	"elasticstack_elasticsearch_security_role_mapping": config.IdentifierFromProvider,
+	"elasticstack_elasticsearch_security_system_user":  config.IdentifierFromProvider,
+	"elasticstack_elasticsearch_security_user":         config.IdentifierFromProvider,
+	"elasticstack_elasticsearch_snapshot_lifecycle":    config.IdentifierFromProvider,
+	"elasticstack_elasticsearch_snapshot_repository":   config.IdentifierFromProvider,
+	"elasticstack_elasticsearch_transform":             config.IdentifierFromProvider,
+	"elasticstack_elasticsearch_watch":                 config.IdentifierFromProvider,
+	"elasticstack_fleet_agent_policy":                  config.IdentifierFromProvider,
+	"elasticstack_fleet_output":                        config.IdentifierFromProvider,
+	"elasticstack_fleet_server_host":                   config.IdentifierFromProvider,
+	"elasticstack_kibana_action_connector":             config.IdentifierFromProvider,
+	"elasticstack_kibana_alerting_rule":                config.IdentifierFromProvider,
+	"elasticstack_kibana_slo":                          config.IdentifierFromProvider,
+	"elasticstack_kibana_space":                        config.IdentifierFromProvider,
 }
 
 // ExternalNameConfigurations applies all external name configs listed in the

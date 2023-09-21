@@ -1,9 +1,1668 @@
-name: hashicorp/null
+name: elastic/elasticstack
 resources:
-    null_resource Resource - terraform-provider-null:
-        subCategory: ""
-        description: The null_resource resource implements the standard resource lifecycle but takes no further action. The triggers argument allows specifying an arbitrary set of values that, when changed, will cause the resource to be replaced.
-        name: null_resource Resource - terraform-provider-null
-        title: null_resource Resource - terraform-provider-null
-        argumentDocs: {}
+    elasticstack_elasticsearch_cluster_settings:
+        subCategory: Cluster
+        description: Updates cluster-wide settings.
+        name: elasticstack_elasticsearch_cluster_settings
+        title: elasticstack_elasticsearch_cluster_settings Resource
+        examples:
+            - name: my_cluster_settings
+              manifest: |-
+                {
+                  "persistent": [
+                    {
+                      "setting": [
+                        {
+                          "name": "indices.lifecycle.poll_interval",
+                          "value": "10m"
+                        },
+                        {
+                          "name": "indices.recovery.max_bytes_per_sec",
+                          "value": "50mb"
+                        },
+                        {
+                          "name": "indices.breaker.total.limit",
+                          "value": "65%"
+                        },
+                        {
+                          "name": "xpack.security.audit.logfile.events.include",
+                          "value_list": [
+                            "ACCESS_DENIED",
+                            "ACCESS_GRANTED"
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "transient": [
+                    {
+                      "setting": [
+                        {
+                          "name": "indices.breaker.total.limit",
+                          "value": "60%"
+                        }
+                      ]
+                    }
+                  ]
+                }
+        argumentDocs:
+            api_key: (String, Sensitive) API Key to use for authentication to Elasticsearch
+            ca_data: (String) PEM-encoded custom Certificate Authority certificate
+            ca_file: (String) Path to a custom Certificate Authority certificate
+            cert_data: (String) PEM encoded certificate for client auth
+            cert_file: (String) Path to a file containing the PEM encoded certificate for client auth
+            elasticsearch_connection: '(Block List, Max: 1, Deprecated) Elasticsearch connection configuration block. This property will be removed in a future provider version. Configure the Elasticsearch connection via the provider configuration instead. (see below for nested schema)'
+            endpoints: (List of String, Sensitive) A list of endpoints where the terraform provider will point to, this must include the http(s) schema and port number.
+            id: (String) Internal identifier of the resource
+            insecure: (Boolean) Disable TLS certificate validation
+            key_data: (String, Sensitive) PEM encoded private key for client auth
+            key_file: (String) Path to a file containing the PEM encoded private key for client auth
+            name: (String) The name of the setting to set and track.
+            password: (String, Sensitive) Password to use for API authentication to Elasticsearch.
+            persistent: '(Block List, Max: 1) Settings will apply across restarts. (see below for nested schema)'
+            setting: '(Block Set, Min: 1) Defines the setting in the cluster. (see below for nested schema)'
+            transient: '(Block List, Max: 1) Settings do not survive a full cluster restart. (see below for nested schema)'
+            username: (String) Username to use for API authentication to Elasticsearch.
+            value: (String) The value of the setting to set and track.
+            value_list: (List of String) The list of values to be set for the key, where the list is required.
         importStatements: []
+    elasticstack_elasticsearch_component_template:
+        subCategory: Index
+        description: Creates or updates a component template.
+        name: elasticstack_elasticsearch_component_template
+        title: elasticstack_elasticsearch_component_template Resource
+        examples:
+            - name: my_template
+              manifest: |-
+                {
+                  "name": "my_template",
+                  "template": [
+                    {
+                      "aliases": [
+                        {
+                          "name": "my_template_test"
+                        }
+                      ],
+                      "settings": "${jsonencode({\n      number_of_shards = \"3\"\n    })}"
+                    }
+                  ]
+                }
+              dependencies:
+                elasticstack_elasticsearch_index_template.my_template: |-
+                    {
+                      "composed_of": [
+                        "${elasticstack_elasticsearch_component_template.my_template.name}"
+                      ],
+                      "index_patterns": [
+                        "stream*"
+                      ],
+                      "name": "my_data_stream"
+                    }
+        argumentDocs:
+            alias: (Block Set) Alias to add. (see below for nested schema)
+            api_key: (String, Sensitive) API Key to use for authentication to Elasticsearch
+            ca_data: (String) PEM-encoded custom Certificate Authority certificate
+            ca_file: (String) Path to a custom Certificate Authority certificate
+            cert_data: (String) PEM encoded certificate for client auth
+            cert_file: (String) Path to a file containing the PEM encoded certificate for client auth
+            elasticsearch_connection: '(Block List, Max: 1, Deprecated) Elasticsearch connection configuration block. This property will be removed in a future provider version. Configure the Elasticsearch connection via the provider configuration instead. (see below for nested schema)'
+            endpoints: (List of String, Sensitive) A list of endpoints where the terraform provider will point to, this must include the http(s) schema and port number.
+            filter: (String) Query used to limit documents the alias can access.
+            id: (String) Internal identifier of the resource
+            index_routing: (String) Value used to route indexing operations to a specific shard. If specified, this overwrites the routing value for indexing operations.
+            insecure: (Boolean) Disable TLS certificate validation
+            is_hidden: (Boolean) If true, the alias is hidden.
+            is_write_index: (Boolean) If true, the index is the write index for the alias.
+            key_data: (String, Sensitive) PEM encoded private key for client auth
+            key_file: (String) Path to a file containing the PEM encoded private key for client auth
+            mappings: (String) Mapping for fields in the index.
+            metadata: (String) Optional user metadata about the component template.
+            name: (String) Name of the component template to create.
+            password: (String, Sensitive) Password to use for API authentication to Elasticsearch.
+            routing: (String) Value used to route indexing and search operations to a specific shard.
+            search_routing: (String) Value used to route search operations to a specific shard. If specified, this overwrites the routing value for search operations.
+            settings: (String) Configuration options for the index. See, https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules.html#index-modules-settings
+            template: '(Block List, Min: 1, Max: 1) Template to be applied. It may optionally include an aliases, mappings, or settings configuration. (see below for nested schema)'
+            username: (String) Username to use for API authentication to Elasticsearch.
+            version: (Number) Version number used to manage component templates externally.
+        importStatements:
+            - terraform import elasticstack_elasticsearch_component_template.my_template <cluster_uuid>/<component_name>
+    elasticstack_elasticsearch_data_stream:
+        subCategory: Index
+        description: Manages Elasticsearch Data Streams
+        name: elasticstack_elasticsearch_data_stream
+        title: elasticstack_elasticsearch_data_stream Resource
+        examples:
+            - name: my_data_stream
+              manifest: |-
+                {
+                  "depends_on": [
+                    "${elasticstack_elasticsearch_index_template.my_data_stream_template}"
+                  ],
+                  "name": "my-stream"
+                }
+              dependencies:
+                elasticstack_elasticsearch_index_lifecycle.my_ilm: |-
+                    {
+                      "delete": [
+                        {
+                          "delete": [
+                            {}
+                          ],
+                          "min_age": "2d"
+                        }
+                      ],
+                      "hot": [
+                        {
+                          "min_age": "1h",
+                          "readonly": [
+                            {}
+                          ],
+                          "rollover": [
+                            {
+                              "max_age": "1d"
+                            }
+                          ],
+                          "set_priority": [
+                            {
+                              "priority": 10
+                            }
+                          ]
+                        }
+                      ],
+                      "name": "my_ilm_policy"
+                    }
+                elasticstack_elasticsearch_index_template.my_data_stream_template: |-
+                    {
+                      "data_stream": [
+                        {}
+                      ],
+                      "index_patterns": [
+                        "my-stream*"
+                      ],
+                      "name": "my_data_stream",
+                      "template": [
+                        {
+                          "settings": "${jsonencode({\n      \"lifecycle.name\" = elasticstack_elasticsearch_index_lifecycle.my_ilm.name\n    })}"
+                        }
+                      ]
+                    }
+        argumentDocs:
+            api_key: (String, Sensitive) API Key to use for authentication to Elasticsearch
+            ca_data: (String) PEM-encoded custom Certificate Authority certificate
+            ca_file: (String) Path to a custom Certificate Authority certificate
+            cert_data: (String) PEM encoded certificate for client auth
+            cert_file: (String) Path to a file containing the PEM encoded certificate for client auth
+            elasticsearch_connection: '(Block List, Max: 1, Deprecated) Elasticsearch connection configuration block. This property will be removed in a future provider version. Configure the Elasticsearch connection via the provider configuration instead. (see below for nested schema)'
+            endpoints: (List of String, Sensitive) A list of endpoints where the terraform provider will point to, this must include the http(s) schema and port number.
+            generation: (Number) Current generation for the data stream.
+            hidden: (Boolean) If true, the data stream is hidden.
+            id: (String) Internal identifier of the resource
+            ilm_policy: (String) Name of the current ILM lifecycle policy in the stream’s matching index template.
+            index_name: (String)
+            index_uuid: (String)
+            indices: (List of Object) Array of objects containing information about the data stream’s backing indices. The last item in this array contains information about the stream’s current write index. (see below for nested schema)
+            insecure: (Boolean) Disable TLS certificate validation
+            key_data: (String, Sensitive) PEM encoded private key for client auth
+            key_file: (String) Path to a file containing the PEM encoded private key for client auth
+            metadata: (String) Custom metadata for the stream, copied from the _meta object of the stream’s matching index template.
+            name: (String) Name of the data stream to create.
+            password: (String, Sensitive) Password to use for API authentication to Elasticsearch.
+            replicated: (Boolean) If true, the data stream is created and managed by cross-cluster replication and the local cluster can not write into this data stream or change its mappings.
+            status: (String) Health status of the data stream.
+            system: (Boolean) If true, the data stream is created and managed by an Elastic stack component and cannot be modified through normal user interaction.
+            template: (String) Name of the index template used to create the data stream’s backing indices.
+            timestamp_field: (String) Contains information about the data stream’s @timestamp field.
+            username: (String) Username to use for API authentication to Elasticsearch.
+        importStatements:
+            - terraform import elasticstack_elasticsearch_data_stream.my_data_stream <cluster_uuid>/<data_stream_name>
+    elasticstack_elasticsearch_enrich_policy:
+        subCategory: Enrich
+        description: 'Managing Elasticsearch enrich policies, see: https://www.elastic.co/guide/en/elasticsearch/reference/current/enrich-apis.html'
+        name: elasticstack_elasticsearch_enrich_policy
+        title: elasticstack_elasticsearch_enrich_policy
+        examples:
+            - name: policy1
+              manifest: |-
+                {
+                  "enrich_fields": [
+                    "first_name",
+                    "last_name"
+                  ],
+                  "indices": [
+                    "${elasticstack_elasticsearch_index.my_index.name}"
+                  ],
+                  "match_field": "email",
+                  "name": "policy1",
+                  "policy_type": "match",
+                  "query": "${jsonencode({\n    bool = {\n      must     = [{ term = { b = \"A\" } }]\n      must_not = [{ term = { a = \"B\" } }]\n    }\n  })}"
+                }
+              dependencies:
+                elasticstack_elasticsearch_index.my_index: |-
+                    {
+                      "deletion_protection": false,
+                      "mappings": "${jsonencode({\n    properties = {\n      email      = { type = \"text\" }\n      first_name = { type = \"text\" }\n      last_name  = { type = \"text\" }\n    }\n  })}",
+                      "name": "my-index"
+                    }
+        argumentDocs:
+            api_key: (String, Sensitive) API Key to use for authentication to Elasticsearch
+            ca_data: (String) PEM-encoded custom Certificate Authority certificate
+            ca_file: (String) Path to a custom Certificate Authority certificate
+            cert_data: (String) PEM encoded certificate for client auth
+            cert_file: (String) Path to a file containing the PEM encoded certificate for client auth
+            elasticsearch_connection: '(Block List, Max: 1, Deprecated) Elasticsearch connection configuration block. This property will be removed in a future provider version. Configure the Elasticsearch connection via the provider configuration instead. (see below for nested schema)'
+            endpoints: (List of String, Sensitive) A list of endpoints where the terraform provider will point to, this must include the http(s) schema and port number.
+            enrich_fields: (Set of String) Fields to add to matching incoming documents. These fields must be present in the source indices.
+            execute: (Boolean) Whether to call the execute API function in order to create the enrich index.
+            id: (String) The ID of this resource.
+            indices: (Set of String) Array of one or more source indices used to create the enrich index.
+            insecure: (Boolean) Disable TLS certificate validation
+            key_data: (String, Sensitive) PEM encoded private key for client auth
+            key_file: (String) Path to a file containing the PEM encoded private key for client auth
+            match_field: (String) Field in source indices used to match incoming documents.
+            name: (String) Name of the enrich policy to manage.
+            password: (String, Sensitive) Password to use for API authentication to Elasticsearch.
+            policy_type: (String) The type of enrich policy, can be one of geo_match, match, range.
+            query: (String) Query used to filter documents in the enrich index. The policy only uses documents matching this query to enrich incoming documents. Defaults to a match_all query.
+            username: (String) Username to use for API authentication to Elasticsearch.
+        importStatements:
+            - |-
+              # NOTE: while importing index resource, keep in mind, that some of the default index settings will be imported into the TF state too
+              # You can later adjust the index configuration to account for those imported settings
+              terraform import elasticstack_elasticsearch_enrich_policy.policy1 <cluster_uuid>/<policy_name>
+    elasticstack_elasticsearch_index:
+        subCategory: Index
+        description: Creates or updates an index.
+        name: elasticstack_elasticsearch_index
+        title: elasticstack_elasticsearch_index Resource
+        examples:
+            - name: my_index
+              manifest: |-
+                {
+                  "alias": [
+                    {
+                      "name": "my_alias_1"
+                    },
+                    {
+                      "filter": "${jsonencode({\n      term = { \"user.id\" = \"developer\" }\n    })}",
+                      "name": "my_alias_2"
+                    }
+                  ],
+                  "mappings": "${jsonencode({\n    properties = {\n      field1 = { type = \"keyword\" }\n      field2 = { type = \"text\" }\n      field3 = {\n        properties = {\n          inner_field1 = { type = \"text\", index = false }\n          inner_field2 = { type = \"integer\", index = false }\n        }\n      }\n    }\n  })}",
+                  "name": "my-index",
+                  "number_of_replicas": 2,
+                  "number_of_shards": 1,
+                  "search_idle_after": "20s",
+                  "total_shards_per_node": 200
+                }
+        argumentDocs:
+            alias: (Block Set) Aliases for the index. (see below for nested schema)
+            analysis_analyzer: (String) A JSON string describing the analyzers applied to the index.
+            analysis_char_filter: (String) A JSON string describing the char_filters applied to the index.
+            analysis_filter: (String) A JSON string describing the filters applied to the index.
+            analysis_normalizer: (String) A JSON string describing the normalizers applied to the index.
+            analysis_tokenizer: (String) A JSON string describing the tokenizers applied to the index.
+            analyze_max_token_count: (Number) The maximum number of tokens that can be produced using _analyze API.
+            api_key: (String, Sensitive) API Key to use for authentication to Elasticsearch
+            auto_expand_replicas: (String) Set the number of replicas to the node count in the cluster. Set to a dash delimited lower and upper bound (e.g. 0-5) or use all for the upper bound (e.g. 0-all)
+            blocks_metadata: (Boolean) Set to true to disable index metadata reads and writes.
+            blocks_read: (Boolean) Set to true to disable read operations against the index.
+            blocks_read_only: (Boolean) Set to true to make the index and index metadata read only, false to allow writes and metadata changes.
+            blocks_read_only_allow_delete: (Boolean) Identical to index.blocks.read_only but allows deleting the index to free up resources.
+            blocks_write: (Boolean) Set to true to disable data write operations against the index. This setting does not affect metadata.
+            ca_data: (String) PEM-encoded custom Certificate Authority certificate
+            ca_file: (String) Path to a custom Certificate Authority certificate
+            cert_data: (String) PEM encoded certificate for client auth
+            cert_file: (String) Path to a file containing the PEM encoded certificate for client auth
+            codec: (String) The default value compresses stored data with LZ4 compression, but this can be set to best_compression which uses DEFLATE for a higher compression ratio. This can be set only on creation.
+            default_pipeline: (String) The default ingest node pipeline for this index. Index requests will fail if the default pipeline is set and the pipeline does not exist.
+            deletion_protection: (Boolean) Whether to allow Terraform to destroy the index. Unless this field is set to false in Terraform state, a terraform destroy or terraform apply command that deletes the instance will fail.
+            elasticsearch_connection: '(Block List, Max: 1, Deprecated) Elasticsearch connection configuration block. This property will be removed in a future provider version. Configure the Elasticsearch connection via the provider configuration instead. (see below for nested schema)'
+            endpoints: (List of String, Sensitive) A list of endpoints where the terraform provider will point to, this must include the http(s) schema and port number.
+            filter: (String) Query used to limit documents the alias can access.
+            final_pipeline: (String) Final ingest pipeline for the index. Indexing requests will fail if the final pipeline is set and the pipeline does not exist. The final pipeline always runs after the request pipeline (if specified) and the default pipeline (if it exists). The special pipeline name _none indicates no ingest pipeline will run.
+            gc_deletes: (String) The length of time that a deleted document's version number remains available for further versioned operations.
+            highlight_max_analyzed_offset: (Number) The maximum number of characters that will be analyzed for a highlight request.
+            id: (String) Internal identifier of the resource
+            include_type_name: (Boolean) If true, a mapping type is expected in the body of mappings. Defaults to false. Supported for Elasticsearch 7.x.
+            index_routing: (String) Value used to route indexing operations to a specific shard. If specified, this overwrites the routing value for indexing operations.
+            indexing_slowlog_level: '(String) Set which logging level to use for the search slow log, can be: warn, info, debug, trace'
+            indexing_slowlog_source: (String) Set the number of characters of the _source to include in the slowlog lines, false or 0 will skip logging the source entirely and setting it to true will log the entire source regardless of size. The original _source is reformatted by default to make sure that it fits on a single log line.
+            indexing_slowlog_threshold_index_debug: (String) Set the cutoff for shard level slow search logging of slow searches for indexing queries, in time units, e.g. 2s
+            indexing_slowlog_threshold_index_info: (String) Set the cutoff for shard level slow search logging of slow searches for indexing queries, in time units, e.g. 5s
+            indexing_slowlog_threshold_index_trace: (String) Set the cutoff for shard level slow search logging of slow searches for indexing queries, in time units, e.g. 500ms
+            indexing_slowlog_threshold_index_warn: (String) Set the cutoff for shard level slow search logging of slow searches for indexing queries, in time units, e.g. 10s
+            insecure: (Boolean) Disable TLS certificate validation
+            is_hidden: (Boolean) If true, the alias is hidden.
+            is_write_index: (Boolean) If true, the index is the write index for the alias.
+            key_data: (String, Sensitive) PEM encoded private key for client auth
+            key_file: (String) Path to a file containing the PEM encoded private key for client auth
+            load_fixed_bitset_filters_eagerly: (Boolean) Indicates whether cached filters are pre-loaded for nested queries. This can be set only on creation.
+            mapping_coerce: (Boolean) Set index level coercion setting that is applied to all mapping types.
+            mappings: |-
+                (String) Mapping for fields in the index.
+                If specified, this mapping can include: field names, field data types, mapping parameters.
+                NOTE:
+            master_timeout: (String) Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. Defaults to 30s.
+            max_docvalue_fields_search: (Number) The maximum number of docvalue_fields that are allowed in a query.
+            max_inner_result_window: (Number) The maximum value of from + size for inner hits definition and top hits aggregations to this index.
+            max_ngram_diff: (Number) The maximum allowed difference between min_gram and max_gram for NGramTokenizer and NGramTokenFilter.
+            max_refresh_listeners: (Number) Maximum number of refresh listeners available on each shard of the index.
+            max_regex_length: (Number) The maximum length of regex that can be used in Regexp Query.
+            max_rescore_window: (Number) The maximum value of window_size for rescore requests in searches of this index.
+            max_result_window: (Number) The maximum value of from + size for searches to this index.
+            max_script_fields: (Number) The maximum number of script_fields that are allowed in a query.
+            max_shingle_diff: (Number) The maximum allowed difference between max_shingle_size and min_shingle_size for ShingleTokenFilter.
+            max_terms_count: (Number) The maximum number of terms that can be used in Terms Query.
+            name: (String) Name of the index you wish to create.
+            number_of_replicas: (Number) Number of shard replicas.
+            number_of_routing_shards: (Number) Value used with number_of_shards to route documents to a primary shard. This can be set only on creation.
+            number_of_shards: (Number) Number of shards for the index. This can be set only on creation.
+            password: (String, Sensitive) Password to use for API authentication to Elasticsearch.
+            query_default_field: (Set of String) Wildcard () patterns matching one or more fields. Defaults to '', which matches all fields eligible for term-level queries, excluding metadata fields.
+            refresh_interval: (String) How often to perform a refresh operation, which makes recent changes to the index visible to search. Can be set to -1 to disable refresh.
+            routing: (String) Value used to route indexing and search operations to a specific shard.
+            routing_allocation_enable: '(String) Controls shard allocation for this index. It can be set to: all , primaries , new_primaries , none.'
+            routing_partition_size: (Number) The number of shards a custom routing value can go to. This can be set only on creation.
+            routing_rebalance_enable: '(String) Enables shard rebalancing for this index. It can be set to: all, primaries , replicas , none.'
+            search_idle_after: (String) How long a shard can not receive a search or get request until it’s considered search idle.
+            search_routing: (String) Value used to route search operations to a specific shard. If specified, this overwrites the routing value for search operations.
+            search_slowlog_level: '(String) Set which logging level to use for the search slow log, can be: warn, info, debug, trace'
+            search_slowlog_threshold_fetch_debug: (String) Set the cutoff for shard level slow search logging of slow searches in the fetch phase, in time units, e.g. 2s
+            search_slowlog_threshold_fetch_info: (String) Set the cutoff for shard level slow search logging of slow searches in the fetch phase, in time units, e.g. 5s
+            search_slowlog_threshold_fetch_trace: (String) Set the cutoff for shard level slow search logging of slow searches in the fetch phase, in time units, e.g. 500ms
+            search_slowlog_threshold_fetch_warn: (String) Set the cutoff for shard level slow search logging of slow searches in the fetch phase, in time units, e.g. 10s
+            search_slowlog_threshold_query_debug: (String) Set the cutoff for shard level slow search logging of slow searches in the query phase, in time units, e.g. 2s
+            search_slowlog_threshold_query_info: (String) Set the cutoff for shard level slow search logging of slow searches in the query phase, in time units, e.g. 5s
+            search_slowlog_threshold_query_trace: (String) Set the cutoff for shard level slow search logging of slow searches in the query phase, in time units, e.g. 500ms
+            search_slowlog_threshold_query_warn: (String) Set the cutoff for shard level slow search logging of slow searches in the query phase, in time units, e.g. 10s
+            setting: '(Block Set, Min: 1) Defines the setting for the index. (see below for nested schema)'
+            settings: |-
+                (Block List, Max: 1, Deprecated) DEPRECATED: Please use dedicated setting field. Configuration options for the index. See, https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules.html#index-modules-settings.
+                NOTE: Static index settings (see: https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules.html#_static_index_settings) can be only set on the index creation and later cannot be removed or updated - apply will return error (see below for nested schema)
+            settings_raw: (String) All raw settings fetched from the cluster.
+            shard_check_on_startup: (String) Whether or not shards should be checked for corruption before opening. When corruption is detected, it will prevent the shard from being opened. Accepts false, true, checksum.
+            sort_field: (Set of String) The field to sort shards in this index by.
+            sort_order: (List of String) The direction to sort shards in. Accepts asc, desc.
+            timeout: (String) Period to wait for a response. If no response is received before the timeout expires, the request fails and returns an error. Defaults to 30s.
+            unassigned_node_left_delayed_timeout: (String) Time to delay the allocation of replica shards which become unassigned because a node has left, in time units, e.g. 10s
+            username: (String) Username to use for API authentication to Elasticsearch.
+            value: (String) The value of the setting to set and track.
+            wait_for_active_shards: '(String) The number of shard copies that must be active before proceeding with the operation. Set to all or any positive integer up to the total number of shards in the index (number_of_replicas+1). Default: 1, the primary shard.'
+        importStatements:
+            - |-
+              # NOTE: while importing index resource, keep in mind, that some of the default index settings will be imported into the TF state too
+              # You can later adjust the index configuration to account for those imported settings
+              terraform import elasticstack_elasticsearch_index.my_index <cluster_uuid>/<index_name>
+    elasticstack_elasticsearch_index_lifecycle:
+        subCategory: Index
+        description: Creates or updates lifecycle policy.
+        name: elasticstack_elasticsearch_index_lifecycle
+        title: elasticstack_elasticsearch_index_lifecycle Resource
+        examples:
+            - name: my_ilm
+              manifest: |-
+                {
+                  "delete": [
+                    {
+                      "delete": [
+                        {}
+                      ],
+                      "min_age": "2d"
+                    }
+                  ],
+                  "hot": [
+                    {
+                      "min_age": "1h",
+                      "readonly": [
+                        {}
+                      ],
+                      "rollover": [
+                        {
+                          "max_age": "1d"
+                        }
+                      ],
+                      "set_priority": [
+                        {
+                          "priority": 0
+                        }
+                      ]
+                    }
+                  ],
+                  "name": "my_ilm_policy",
+                  "warm": [
+                    {
+                      "allocate": [
+                        {
+                          "exclude": "${jsonencode({\n        box_type = \"hot\"\n      })}",
+                          "number_of_replicas": 1,
+                          "total_shards_per_node": 200
+                        }
+                      ],
+                      "min_age": "0ms",
+                      "readonly": [
+                        {}
+                      ],
+                      "set_priority": [
+                        {
+                          "priority": 10
+                        }
+                      ]
+                    }
+                  ]
+                }
+        argumentDocs:
+            allocate: '(Block List, Max: 1) Updates the index settings to change which nodes are allowed to host the index shards and change the number of replicas. (see below for nested schema)'
+            api_key: (String, Sensitive) API Key to use for authentication to Elasticsearch
+            ca_data: (String) PEM-encoded custom Certificate Authority certificate
+            ca_file: (String) Path to a custom Certificate Authority certificate
+            cert_data: (String) PEM encoded certificate for client auth
+            cert_file: (String) Path to a file containing the PEM encoded certificate for client auth
+            cold: '(Block List, Max: 1) The index is no longer being updated and is queried infrequently. The information still needs to be searchable, but it’s okay if those queries are slower. (see below for nested schema)'
+            delete: '(Block List, Max: 1) The index is no longer needed and can safely be removed. (see below for nested schema)'
+            delete_searchable_snapshot: (Boolean) Deletes the searchable snapshot created in a previous phase.
+            elasticsearch_connection: '(Block List, Max: 1, Deprecated) Elasticsearch connection configuration block. This property will be removed in a future provider version. Configure the Elasticsearch connection via the provider configuration instead. (see below for nested schema)'
+            enabled: (Boolean) Controls whether ILM freezes the index.
+            endpoints: (List of String, Sensitive) A list of endpoints where the terraform provider will point to, this must include the http(s) schema and port number.
+            exclude: (String) Assigns an index to nodes that have none of the specified custom attributes. Must be valid JSON document.
+            force_merge_index: (Boolean) Force merges the managed index to one segment.
+            forcemerge: '(Block List, Max: 1) Force merges the index into the specified maximum number of segments. This action makes the index read-only. (see below for nested schema)'
+            freeze: '(Block List, Max: 1) Freeze the index to minimize its memory footprint. (see below for nested schema)'
+            frozen: '(Block List, Max: 1) The index is no longer being updated and is queried rarely. The information still needs to be searchable, but it’s okay if those queries are extremely slow. (see below for nested schema)'
+            hot: '(Block List, Max: 1) The index is actively being updated and queried. (see below for nested schema)'
+            id: (String) Internal identifier of the resource
+            include: (String) Assigns an index to nodes that have at least one of the specified custom attributes. Must be valid JSON document.
+            index_codec: (String) Codec used to compress the document store.
+            insecure: (Boolean) Disable TLS certificate validation
+            key_data: (String, Sensitive) PEM encoded private key for client auth
+            key_file: (String) Path to a file containing the PEM encoded private key for client auth
+            max_age: (String) Triggers rollover after the maximum elapsed time from index creation is reached.
+            max_docs: (Number) Triggers rollover after the specified maximum number of documents is reached.
+            max_num_segments: (Number) Number of segments to merge to. To fully merge the index, set to 1.
+            max_primary_shard_size: (String) Triggers rollover when the largest primary shard in the index reaches a certain size.
+            max_size: (String) Triggers rollover when the index reaches a certain size.
+            metadata: (String) Optional user metadata about the ilm policy. Must be valid JSON document.
+            migrate: '(Block List, Max: 1) Moves the index to the data tier that corresponds to the current phase by updating the "index.routing.allocation.include._tier_preference" index setting. (see below for nested schema)'
+            min_age: (String) ILM moves indices through the lifecycle according to their age. To control the timing of these transitions, you set a minimum age for each phase.
+            min_docs: (Number) Prevents rollover until after the specified minimum number of documents is reached. Supported from Elasticsearch version 8.4
+            min_primary_shard_docs: (Number) Prevents rollover until the largest primary shard in the index reaches a certain number of documents. Supported from Elasticsearch version 8.4
+            min_primary_shard_size: (String) Prevents rollover until the largest primary shard in the index reaches a certain size. Supported from Elasticsearch version 8.4
+            min_size: (String) Prevents rollover until the index reaches a certain size.
+            modified_date: (String) The DateTime of the last modification.
+            name: (String) Identifier for the policy.
+            number_of_replicas: '(Number) Number of replicas to assign to the index. Default: 0'
+            number_of_shards: (Number) Number of shards to shrink to.
+            password: (String, Sensitive) Password to use for API authentication to Elasticsearch.
+            policy: (String) Name of the SLM policy that the delete action should wait for.
+            priority: (Number) The priority for the index. Must be 0 or greater.
+            readonly: '(Block List, Max: 1) Makes the index read-only. (see below for nested schema)'
+            require: (String) Assigns an index to nodes that have all of the specified custom attributes. Must be valid JSON document.
+            rollover: '(Block List, Max: 1) Rolls over a target to a new index when the existing index meets one or more of the rollover conditions. (see below for nested schema)'
+            searchable_snapshot: '(Block List, Max: 1) Takes a snapshot of the managed index in the configured repository and mounts it as a searchable snapshot. (see below for nested schema)'
+            set_priority: '(Block List, Max: 1) Sets a source index to read-only and shrinks it into a new index with fewer primary shards. (see below for nested schema)'
+            shrink: '(Block List, Max: 1) Sets a source index to read-only and shrinks it into a new index with fewer primary shards. (see below for nested schema)'
+            snapshot_repository: (String) Repository used to store the snapshot.
+            total_shards_per_node: (Number) The maximum number of shards for the index on a single Elasticsearch node. Defaults to -1 (unlimited). Supported from Elasticsearch version 7.16
+            unfollow: '(Block List, Max: 1) Convert a follower index to a regular index. Performed automatically before a rollover, shrink, or searchable snapshot action. (see below for nested schema)'
+            username: (String) Username to use for API authentication to Elasticsearch.
+            wait_for_snapshot: '(Block List, Max: 1) Waits for the specified SLM policy to be executed before removing the index. This ensures that a snapshot of the deleted index is available. (see below for nested schema)'
+            warm: '(Block List, Max: 1) The index is no longer being updated but is still being queried. (see below for nested schema)'
+        importStatements:
+            - terraform import elasticstack_elasticsearch_index_lifecycle.my_ilm <cluster_uuid>/<ilm_name>
+    elasticstack_elasticsearch_index_template:
+        subCategory: Index
+        description: Creates or updates an index template.
+        name: elasticstack_elasticsearch_index_template
+        title: elasticstack_elasticsearch_index_template Resource
+        examples:
+            - name: my_template
+              manifest: |-
+                {
+                  "index_patterns": [
+                    "logstash*",
+                    "filebeat*"
+                  ],
+                  "name": "my_template",
+                  "priority": 42,
+                  "template": [
+                    {
+                      "alias": [
+                        {
+                          "name": "my_template_test"
+                        },
+                        {
+                          "name": "another_test"
+                        }
+                      ],
+                      "settings": "${jsonencode({\n      number_of_shards = \"3\"\n    })}"
+                    }
+                  ]
+                }
+            - name: my_data_stream
+              manifest: |-
+                {
+                  "data_stream": [
+                    {}
+                  ],
+                  "index_patterns": [
+                    "stream*"
+                  ],
+                  "name": "my_data_stream"
+                }
+        argumentDocs:
+            alias: (Block Set) Alias to add. (see below for nested schema)
+            allow_custom_routing: (Boolean) If true, the data stream supports custom routing. Defaults to false. Available only in 8.x
+            api_key: (String, Sensitive) API Key to use for authentication to Elasticsearch
+            ca_data: (String) PEM-encoded custom Certificate Authority certificate
+            ca_file: (String) Path to a custom Certificate Authority certificate
+            cert_data: (String) PEM encoded certificate for client auth
+            cert_file: (String) Path to a file containing the PEM encoded certificate for client auth
+            composed_of: (List of String) An ordered list of component template names.
+            data_stream: '(Block List, Max: 1) If this object is included, the template is used to create data streams and their backing indices. Supports an empty object. (see below for nested schema)'
+            elasticsearch_connection: '(Block List, Max: 1, Deprecated) Elasticsearch connection configuration block. This property will be removed in a future provider version. Configure the Elasticsearch connection via the provider configuration instead. (see below for nested schema)'
+            endpoints: (List of String, Sensitive) A list of endpoints where the terraform provider will point to, this must include the http(s) schema and port number.
+            filter: (String) Query used to limit documents the alias can access.
+            hidden: (Boolean) If true, the data stream is hidden.
+            id: (String) Internal identifier of the resource
+            index_patterns: (Set of String) Array of wildcard (*) expressions used to match the names of data streams and indices during creation.
+            index_routing: (String) Value used to route indexing operations to a specific shard. If specified, this overwrites the routing value for indexing operations.
+            insecure: (Boolean) Disable TLS certificate validation
+            is_hidden: (Boolean) If true, the alias is hidden.
+            is_write_index: (Boolean) If true, the index is the write index for the alias.
+            key_data: (String, Sensitive) PEM encoded private key for client auth
+            key_file: (String) Path to a file containing the PEM encoded private key for client auth
+            mappings: (String) Mapping for fields in the index.
+            metadata: (String) Optional user metadata about the index template.
+            name: (String) Name of the index template to create.
+            password: (String, Sensitive) Password to use for API authentication to Elasticsearch.
+            priority: (Number) Priority to determine index template precedence when a new data stream or index is created.
+            routing: (String) Value used to route indexing and search operations to a specific shard.
+            search_routing: (String) Value used to route search operations to a specific shard. If specified, this overwrites the routing value for search operations.
+            settings: (String) Configuration options for the index. See, https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules.html#index-modules-settings
+            template: '(Block List, Max: 1) Template to be applied. It may optionally include an aliases, mappings, or settings configuration. (see below for nested schema)'
+            username: (String) Username to use for API authentication to Elasticsearch.
+            version: (Number) Version number used to manage index templates externally.
+        importStatements:
+            - terraform import elasticstack_elasticsearch_index_template.my_template <cluster_uuid>/<template_name>
+    elasticstack_elasticsearch_ingest_pipeline:
+        subCategory: Ingest
+        description: Manages Ingest Pipelines
+        name: elasticstack_elasticsearch_ingest_pipeline
+        title: elasticstack_elasticsearch_ingest_pipeline Resource
+        examples:
+            - name: my_ingest_pipeline
+              manifest: |-
+                {
+                  "description": "My first ingest pipeline managed by Terraform",
+                  "name": "my_ingest_pipeline",
+                  "processors": [
+                    "${jsonencode({\n      set = {\n        description = \"My set processor description\"\n        field       = \"_meta\"\n        value       = \"indexed\"\n      }\n    })}",
+                    "    {\"json\": {\n      \"field\": \"data\",\n      \"target_field\": \"parsed_data\"\n    }}\n"
+                  ]
+                }
+            - name: ingest
+              manifest: |-
+                {
+                  "name": "set-parse",
+                  "processors": [
+                    "${data.elasticstack_elasticsearch_ingest_processor_set.set_count.json}",
+                    "${data.elasticstack_elasticsearch_ingest_processor_json.parse_string_source.json}"
+                  ]
+                }
+        argumentDocs:
+            api_key: (String, Sensitive) API Key to use for authentication to Elasticsearch
+            ca_data: (String) PEM-encoded custom Certificate Authority certificate
+            ca_file: (String) Path to a custom Certificate Authority certificate
+            cert_data: (String) PEM encoded certificate for client auth
+            cert_file: (String) Path to a file containing the PEM encoded certificate for client auth
+            description: (String) Description of the ingest pipeline.
+            elasticsearch_connection: '(Block List, Max: 1, Deprecated) Elasticsearch connection configuration block. This property will be removed in a future provider version. Configure the Elasticsearch connection via the provider configuration instead. (see below for nested schema)'
+            endpoints: (List of String, Sensitive) A list of endpoints where the terraform provider will point to, this must include the http(s) schema and port number.
+            id: (String) Internal identifier of the resource
+            insecure: (Boolean) Disable TLS certificate validation
+            key_data: (String, Sensitive) PEM encoded private key for client auth
+            key_file: (String) Path to a file containing the PEM encoded private key for client auth
+            metadata: (String) Optional user metadata about the index template.
+            name: (String) The name of the ingest pipeline.
+            on_failure: '(List of String) Processors to run immediately after a processor failure. Each processor supports a processor-level on_failure value. If a processor without an on_failure value fails, Elasticsearch uses this pipeline-level parameter as a fallback. The processors in this parameter run sequentially in the order specified. Elasticsearch will not attempt to run the pipeline’s remaining processors. See: https://www.elastic.co/guide/en/elasticsearch/reference/current/processors.html. Each record must be a valid JSON document'
+            password: (String, Sensitive) Password to use for API authentication to Elasticsearch.
+            processors: '(List of String) Processors used to perform transformations on documents before indexing. Processors run sequentially in the order specified. See: https://www.elastic.co/guide/en/elasticsearch/reference/current/processors.html. Each record must be a valid JSON document.'
+            username: (String) Username to use for API authentication to Elasticsearch.
+        importStatements:
+            - terraform import elasticstack_elasticsearch_ingest_pipeline.my_ingest_pipeline <cluster_uuid>/<ingest pipeline name>
+    elasticstack_elasticsearch_logstash_pipeline:
+        subCategory: Logstash
+        description: Creates or updates centrally managed logstash pipelines.
+        name: elasticstack_elasticsearch_logstash_pipeline
+        title: elasticstack_elasticsearch_logstash_pipeline Resource
+        examples:
+            - name: example
+              manifest: |-
+                {
+                  "description": "This is an example pipeline",
+                  "pipeline": "input{}\nfilter{}\noutput{}\n",
+                  "pipeline_batch_delay": 50,
+                  "pipeline_batch_size": 125,
+                  "pipeline_ecs_compatibility": "disabled",
+                  "pipeline_id": "test_pipeline",
+                  "pipeline_metadata": "${jsonencode({\n    \"type\"    = \"logstash_pipeline\"\n    \"version\" = 1\n  })}",
+                  "pipeline_ordered": "auto",
+                  "pipeline_plugin_classloaders": false,
+                  "pipeline_unsafe_shutdown": false,
+                  "pipeline_workers": 1,
+                  "queue_checkpoint_acks": 1024,
+                  "queue_checkpoint_retry": true,
+                  "queue_checkpoint_writes": 1024,
+                  "queue_drain": false,
+                  "queue_max_bytes": "1gb",
+                  "queue_max_events": 0,
+                  "queue_page_capacity": "64mb",
+                  "queue_type": "persisted"
+                }
+        argumentDocs:
+            api_key: (String, Sensitive) API Key to use for authentication to Elasticsearch
+            ca_data: (String) PEM-encoded custom Certificate Authority certificate
+            ca_file: (String) Path to a custom Certificate Authority certificate
+            cert_data: (String) PEM encoded certificate for client auth
+            cert_file: (String) Path to a file containing the PEM encoded certificate for client auth
+            description: (String) Description of the pipeline.
+            elasticsearch_connection: '(Block List, Max: 1, Deprecated) Elasticsearch connection configuration block. This property will be removed in a future provider version. Configure the Elasticsearch connection via the provider configuration instead. (see below for nested schema)'
+            endpoints: (List of String, Sensitive) A list of endpoints where the terraform provider will point to, this must include the http(s) schema and port number.
+            id: (String) Internal identifier of the resource
+            insecure: (Boolean) Disable TLS certificate validation
+            key_data: (String, Sensitive) PEM encoded private key for client auth
+            key_file: (String) Path to a file containing the PEM encoded private key for client auth
+            last_modified: (String) Date the pipeline was last updated.
+            password: (String, Sensitive) Password to use for API authentication to Elasticsearch.
+            pipeline: (String) Configuration for the pipeline.
+            pipeline_batch_delay: (Number) Time in milliseconds to wait for each event before sending an undersized batch to pipeline workers.
+            pipeline_batch_size: (Number) The maximum number of events an individual worker thread collects before executing filters and outputs.
+            pipeline_ecs_compatibility: (String) Sets the pipeline default value for ecs_compatibility, a setting that is available to plugins that implement an ECS compatibility mode for use with the Elastic Common Schema.
+            pipeline_id: (String) Identifier for the pipeline.
+            pipeline_metadata: (String) Optional JSON metadata about the pipeline.
+            pipeline_ordered: (String) Set the pipeline event ordering.
+            pipeline_plugin_classloaders: (Boolean) (Beta) Load Java plugins in independent classloaders to isolate their dependencies.
+            pipeline_unsafe_shutdown: (Boolean) Forces Logstash to exit during shutdown even if there are still inflight events in memory.
+            pipeline_workers: (Number) The number of parallel workers used to run the filter and output stages of the pipeline.
+            queue_checkpoint_acks: (Number) The maximum number of ACKed events before forcing a checkpoint when persistent queues are enabled.
+            queue_checkpoint_retry: (Boolean) When enabled, Logstash will retry four times per attempted checkpoint write for any checkpoint writes that fail. Any subsequent errors are not retried.
+            queue_checkpoint_writes: (Number) The maximum number of written events before forcing a checkpoint when persistent queues are enabled.
+            queue_drain: (Boolean) When enabled, Logstash waits until the persistent queue is drained before shutting down.
+            queue_max_bytes: (String) Units for the total capacity of the queue when persistent queues are enabled.
+            queue_max_events: (Number) The maximum number of unread events in the queue when persistent queues are enabled.
+            queue_page_capacity: (String) The size of the page data files used when persistent queues are enabled. The queue data consists of append-only data files separated into pages.
+            queue_type: (String) The internal queueing model for event buffering. Options are memory for in-memory queueing, or persisted for disk-based acknowledged queueing.
+            username: (String) User who last updated the pipeline.
+        importStatements:
+            - terraform import elasticstack_elasticsearch_logstash_pipeline.example <cluster_uuid>/<pipeline ID>
+    elasticstack_elasticsearch_script:
+        subCategory: Cluster
+        description: Creates or updates a stored script or search template.
+        name: elasticstack_elasticsearch_script
+        title: elasticstack_elasticsearch_script Resource
+        examples:
+            - name: my_script
+              manifest: |-
+                {
+                  "context": "score",
+                  "lang": "painless",
+                  "script_id": "my_script",
+                  "source": "Math.log(_score * 2) + params['my_modifier']"
+                }
+            - name: my_search_template
+              manifest: |-
+                {
+                  "lang": "mustache",
+                  "params": "${jsonencode({\n    query_string = \"My query string\"\n  })}",
+                  "script_id": "my_search_template",
+                  "source": "${jsonencode({\n    query = {\n      match = {\n        message = \"{{query_string}}\"\n      }\n    }\n    from = \"{{from}}\"\n    size = \"{{size}}\"\n  })}"
+                }
+        argumentDocs:
+            api_key: (String, Sensitive) API Key to use for authentication to Elasticsearch
+            ca_data: (String) PEM-encoded custom Certificate Authority certificate
+            ca_file: (String) Path to a custom Certificate Authority certificate
+            cert_data: (String) PEM encoded certificate for client auth
+            cert_file: (String) Path to a file containing the PEM encoded certificate for client auth
+            context: (String) Context in which the script or search template should run.
+            elasticsearch_connection: '(Block List, Max: 1, Deprecated) Elasticsearch connection configuration block. This property will be removed in a future provider version. Configure the Elasticsearch connection via the provider configuration instead. (see below for nested schema)'
+            endpoints: (List of String, Sensitive) A list of endpoints where the terraform provider will point to, this must include the http(s) schema and port number.
+            id: (String) The ID of this resource.
+            insecure: (Boolean) Disable TLS certificate validation
+            key_data: (String, Sensitive) PEM encoded private key for client auth
+            key_file: (String) Path to a file containing the PEM encoded private key for client auth
+            lang: (String) Script language. For search templates, use mustache.
+            params: (String) Parameters for the script or search template.
+            password: (String, Sensitive) Password to use for API authentication to Elasticsearch.
+            script_id: (String) Identifier for the stored script. Must be unique within the cluster.
+            source: (String) For scripts, a string containing the script. For search templates, an object containing the search template.
+            username: (String) Username to use for API authentication to Elasticsearch.
+        importStatements:
+            - terraform import elasticstack_elasticsearch_script.my_script <cluster_uuid>/<script id>
+    elasticstack_elasticsearch_security_api_key:
+        subCategory: Security
+        description: Creates an API key for access without requiring basic authentication. See, https://www.elastic.co/guide/en/elasticsearch/reference/current/security-api-create-api-key.html
+        name: elasticstack_elasticsearch_security_api_key
+        title: elasticstack_elasticsearch_security_api_key Resource
+        examples:
+            - name: api_key
+              manifest: |-
+                {
+                  "expiration": "1d",
+                  "metadata": "${jsonencode({\n    \"env\"    = \"testing\"\n    \"open\"   = false\n    \"number\" = 49\n  })}",
+                  "name": "My API key",
+                  "role_descriptors": "${jsonencode({\n    role-a = {\n      cluster = [\"all\"],\n      indices = [\n        {\n          names      = [\"index-a*\"],\n          privileges = [\"read\"]\n        }\n      ]\n    }\n  })}"
+                }
+        argumentDocs:
+            api_key: (String, Sensitive) Generated API Key.
+            ca_data: (String) PEM-encoded custom Certificate Authority certificate
+            ca_file: (String) Path to a custom Certificate Authority certificate
+            cert_data: (String) PEM encoded certificate for client auth
+            cert_file: (String) Path to a file containing the PEM encoded certificate for client auth
+            elasticsearch_connection: '(Block List, Max: 1, Deprecated) Elasticsearch connection configuration block. This property will be removed in a future provider version. Configure the Elasticsearch connection via the provider configuration instead. (see below for nested schema)'
+            encoded: (String, Sensitive) API key credentials which is the Base64-encoding of the UTF-8 representation of the id and api_key joined by a colon (:).
+            endpoints: (List of String, Sensitive) A list of endpoints where the terraform provider will point to, this must include the http(s) schema and port number.
+            expiration: (String) Expiration time for the API key. By default, API keys never expire.
+            expiration_timestamp: (Number) Expiration time in milliseconds for the API key. By default, API keys never expire.
+            id: (String) Internal identifier of the resource.
+            insecure: (Boolean) Disable TLS certificate validation
+            key_data: (String, Sensitive) PEM encoded private key for client auth
+            key_file: (String) Path to a file containing the PEM encoded private key for client auth
+            metadata: (String) Arbitrary metadata that you want to associate with the API key.
+            name: (String) Specifies the name for this API key.
+            password: (String, Sensitive) Password to use for API authentication to Elasticsearch.
+            role_descriptors: (String) Role descriptors for this API key.
+            username: (String) Username to use for API authentication to Elasticsearch.
+        importStatements: []
+    elasticstack_elasticsearch_security_role:
+        subCategory: Security
+        description: Adds and updates roles in the native realm.
+        name: elasticstack_elasticsearch_security_role
+        title: elasticstack_elasticsearch_security_role Resource
+        examples:
+            - name: role
+              manifest: |-
+                {
+                  "applications": [
+                    {
+                      "application": "myapp",
+                      "privileges": [
+                        "admin",
+                        "read"
+                      ],
+                      "resources": [
+                        "*"
+                      ]
+                    }
+                  ],
+                  "cluster": [
+                    "all"
+                  ],
+                  "indices": [
+                    {
+                      "names": [
+                        "index1",
+                        "index2"
+                      ],
+                      "privileges": [
+                        "all"
+                      ]
+                    }
+                  ],
+                  "metadata": "${jsonencode({\n    version = 1\n  })}",
+                  "name": "testrole",
+                  "run_as": [
+                    "other_user"
+                  ]
+                }
+        argumentDocs:
+            allow_restricted_indices: (Boolean) Include matching restricted indices in names parameter. Usage is strongly discouraged as it can grant unrestricted operations on critical data, make the entire system unstable or leak sensitive information.
+            api_key: (String, Sensitive) API Key to use for authentication to Elasticsearch
+            application: (String) The name of the application to which this entry applies.
+            applications: (Block Set) A list of application privilege entries. (see below for nested schema)
+            ca_data: (String) PEM-encoded custom Certificate Authority certificate
+            ca_file: (String) Path to a custom Certificate Authority certificate
+            cert_data: (String) PEM encoded certificate for client auth
+            cert_file: (String) Path to a file containing the PEM encoded certificate for client auth
+            cluster: (Set of String) A list of cluster privileges. These privileges define the cluster level actions that users with this role are able to execute.
+            elasticsearch_connection: '(Block List, Max: 1, Deprecated) Elasticsearch connection configuration block. This property will be removed in a future provider version. Configure the Elasticsearch connection via the provider configuration instead. (see below for nested schema)'
+            endpoints: (List of String, Sensitive) A list of endpoints where the terraform provider will point to, this must include the http(s) schema and port number.
+            except: (Set of String) List of the fields to which the grants will not be applied.
+            field_security: '(Block List, Max: 1) The document fields that the owners of the role have read access to. (see below for nested schema)'
+            global: (String) An object defining global privileges.
+            grant: (Set of String) List of the fields to grant the access to.
+            id: (String) Internal identifier of the resource
+            indices: (Block Set) A list of indices permissions entries. (see below for nested schema)
+            insecure: (Boolean) Disable TLS certificate validation
+            key_data: (String, Sensitive) PEM encoded private key for client auth
+            key_file: (String) Path to a file containing the PEM encoded private key for client auth
+            metadata: (String) Optional meta-data.
+            name: (String) The name of the role.
+            names: (Set of String) A list of indices (or index name patterns) to which the permissions in this entry apply.
+            password: (String, Sensitive) Password to use for API authentication to Elasticsearch.
+            privileges: (Set of String) A list of strings, where each element is the name of an application privilege or action.
+            query: (String) A search query that defines the documents the owners of the role have read access to.
+            resources: (Set of String) A list resources to which the privileges are applied.
+            run_as: (Set of String) A list of users that the owners of this role can impersonate.
+            username: (String) Username to use for API authentication to Elasticsearch.
+        importStatements:
+            - terraform import elasticstack_elasticsearch_security_role.my_role <cluster_uuid>/<role name>
+    elasticstack_elasticsearch_security_role_mapping:
+        subCategory: Security
+        description: Manage role mappings. See, https://www.elastic.co/guide/en/elasticsearch/reference/current/security-api-put-role-mapping.html
+        name: elasticstack_elasticsearch_security_role_mapping
+        title: elasticstack_elasticsearch_security_role_mapping Resource
+        examples:
+            - name: example
+              manifest: |-
+                {
+                  "enabled": true,
+                  "name": "test_role_mapping",
+                  "roles": [
+                    "admin"
+                  ],
+                  "rules": "${jsonencode({\n    any = [\n      { field = { username = \"esadmin\" } },\n      { field = { groups = \"cn=admins,dc=example,dc=com\" } },\n    ]\n  })}"
+                }
+        argumentDocs:
+            api_key: (String, Sensitive) API Key to use for authentication to Elasticsearch
+            ca_data: (String) PEM-encoded custom Certificate Authority certificate
+            ca_file: (String) Path to a custom Certificate Authority certificate
+            cert_data: (String) PEM encoded certificate for client auth
+            cert_file: (String) Path to a file containing the PEM encoded certificate for client auth
+            elasticsearch_connection: '(Block List, Max: 1, Deprecated) Elasticsearch connection configuration block. This property will be removed in a future provider version. Configure the Elasticsearch connection via the provider configuration instead. (see below for nested schema)'
+            enabled: (Boolean) Mappings that have enabled set to false are ignored when role mapping is performed.
+            endpoints: (List of String, Sensitive) A list of endpoints where the terraform provider will point to, this must include the http(s) schema and port number.
+            id: (String) Internal identifier of the resource
+            insecure: (Boolean) Disable TLS certificate validation
+            key_data: (String, Sensitive) PEM encoded private key for client auth
+            key_file: (String) Path to a file containing the PEM encoded private key for client auth
+            metadata: (String) Additional metadata that helps define which roles are assigned to each user. Keys beginning with _ are reserved for system usage.
+            name: (String) The distinct name that identifies the role mapping, used solely as an identifier.
+            password: (String, Sensitive) Password to use for API authentication to Elasticsearch.
+            role_templates: (String) A list of mustache templates that will be evaluated to determine the roles names that should granted to the users that match the role mapping rules.
+            roles: (Set of String) A list of role names that are granted to the users that match the role mapping rules.
+            rules: (String) The rules that determine which users should be matched by the mapping. A rule is a logical condition that is expressed by using a JSON DSL.
+            username: (String) Username to use for API authentication to Elasticsearch.
+        importStatements:
+            - terraform import elasticstack_elasticsearch_security_role_mapping.my_role_mapping <cluster_uuid>/<role mapping name>
+    elasticstack_elasticsearch_security_system_user:
+        subCategory: Security
+        description: Updates system user's password and enablement.
+        name: elasticstack_elasticsearch_security_system_user
+        title: elasticstack_elasticsearch_security_system_user Resource
+        examples:
+            - name: kibana_system
+              manifest: |-
+                {
+                  "elasticsearch_connection": [
+                    {
+                      "endpoints": [
+                        "http://localhost:9200"
+                      ],
+                      "password": "changeme",
+                      "username": "elastic"
+                    }
+                  ],
+                  "password_hash": "$2a$10$rMZe6TdsUwBX/TA8vRDz0OLwKAZeCzXM4jT3tfCjpSTB8HoFuq8xO",
+                  "username": "kibana_system"
+                }
+        argumentDocs:
+            api_key: (String, Sensitive) API Key to use for authentication to Elasticsearch
+            ca_data: (String) PEM-encoded custom Certificate Authority certificate
+            ca_file: (String) Path to a custom Certificate Authority certificate
+            cert_data: (String) PEM encoded certificate for client auth
+            cert_file: (String) Path to a file containing the PEM encoded certificate for client auth
+            elasticsearch_connection: '(Block List, Max: 1, Deprecated) Elasticsearch connection configuration block. This property will be removed in a future provider version. Configure the Elasticsearch connection via the provider configuration instead. (see below for nested schema)'
+            enabled: (Boolean) Specifies whether the user is enabled. The default value is true.
+            endpoints: (List of String, Sensitive) A list of endpoints where the terraform provider will point to, this must include the http(s) schema and port number.
+            id: (String) Internal identifier of the resource
+            insecure: (Boolean) Disable TLS certificate validation
+            key_data: (String, Sensitive) PEM encoded private key for client auth
+            key_file: (String) Path to a file containing the PEM encoded private key for client auth
+            password: (String, Sensitive) The user’s password. Passwords must be at least 6 characters long.
+            password_hash: (String, Sensitive) A hash of the user’s password. This must be produced using the same hashing algorithm as has been configured for password storage (see https://www.elastic.co/guide/en/elasticsearch/reference/current/security-settings.html#hashing-settings).
+            username: (String) An identifier for the system user (see https://www.elastic.co/guide/en/elasticsearch/reference/current/built-in-users.html).
+        importStatements: []
+    elasticstack_elasticsearch_security_user:
+        subCategory: Security
+        description: Adds and updates users in the native realm.
+        name: elasticstack_elasticsearch_security_user
+        title: elasticstack_elasticsearch_security_user Resource
+        examples:
+            - name: user
+              manifest: |-
+                {
+                  "elasticsearch_connection": [
+                    {
+                      "endpoints": [
+                        "http://localhost:9200"
+                      ],
+                      "password": "changeme",
+                      "username": "elastic"
+                    }
+                  ],
+                  "metadata": "${jsonencode({\n    \"env\"    = \"testing\"\n    \"open\"   = false\n    \"number\" = 49\n  })}",
+                  "password_hash": "$2a$10$rMZe6TdsUwBX/TA8vRDz0OLwKAZeCzXM4jT3tfCjpSTB8HoFuq8xO",
+                  "roles": [
+                    "kibana_user"
+                  ],
+                  "username": "testuser"
+                }
+            - name: dev
+              manifest: |-
+                {
+                  "metadata": "${jsonencode({\n    \"env\"    = \"testing\"\n    \"open\"   = false\n    \"number\" = 49\n  })}",
+                  "password": "1234567890",
+                  "roles": [
+                    "kibana_user"
+                  ],
+                  "username": "devuser"
+                }
+        argumentDocs:
+            api_key: (String, Sensitive) API Key to use for authentication to Elasticsearch
+            ca_data: (String) PEM-encoded custom Certificate Authority certificate
+            ca_file: (String) Path to a custom Certificate Authority certificate
+            cert_data: (String) PEM encoded certificate for client auth
+            cert_file: (String) Path to a file containing the PEM encoded certificate for client auth
+            elasticsearch_connection: '(Block List, Max: 1, Deprecated) Elasticsearch connection configuration block. This property will be removed in a future provider version. Configure the Elasticsearch connection via the provider configuration instead. (see below for nested schema)'
+            email: (String) The email of the user.
+            enabled: (Boolean) Specifies whether the user is enabled. The default value is true.
+            endpoints: (List of String, Sensitive) A list of endpoints where the terraform provider will point to, this must include the http(s) schema and port number.
+            full_name: (String) The full name of the user.
+            id: (String) Internal identifier of the resource
+            insecure: (Boolean) Disable TLS certificate validation
+            key_data: (String, Sensitive) PEM encoded private key for client auth
+            key_file: (String) Path to a file containing the PEM encoded private key for client auth
+            metadata: (String) Arbitrary metadata that you want to associate with the user.
+            password: (String, Sensitive) The user’s password. Passwords must be at least 6 characters long.
+            password_hash: (String, Sensitive) A hash of the user’s password. This must be produced using the same hashing algorithm as has been configured for password storage (see https://www.elastic.co/guide/en/elasticsearch/reference/current/security-settings.html#hashing-settings).
+            roles: (Set of String) A set of roles the user has. The roles determine the user’s access permissions. Default is [].
+            username: (String) An identifier for the user (see https://www.elastic.co/guide/en/elasticsearch/reference/current/security-api-put-user.html#security-api-put-user-path-params).
+        importStatements:
+            - terraform import elasticstack_elasticsearch_security_user.user <cluster_uuid>/elastic
+    elasticstack_elasticsearch_snapshot_lifecycle:
+        subCategory: Snapshot
+        description: Creates or updates a snapshot lifecycle policy.
+        name: elasticstack_elasticsearch_snapshot_lifecycle
+        title: elasticstack_elasticsearch_snapshot_lifecycle Resource
+        examples:
+            - name: slm_policy
+              manifest: |-
+                {
+                  "expire_after": "30d",
+                  "ignore_unavailable": false,
+                  "include_global_state": false,
+                  "indices": [
+                    "data-*",
+                    "important"
+                  ],
+                  "max_count": 50,
+                  "min_count": 5,
+                  "name": "my_slm_policy",
+                  "repository": "${elasticstack_elasticsearch_snapshot_repository.repo.name}",
+                  "schedule": "0 30 1 * * ?",
+                  "snapshot_name": "\u003cdaily-snap-{now/d}\u003e"
+                }
+              references:
+                repository: elasticstack_elasticsearch_snapshot_repository.repo.name
+              dependencies:
+                elasticstack_elasticsearch_snapshot_repository.repo: |-
+                    {
+                      "fs": [
+                        {
+                          "compress": true,
+                          "location": "/tmp/snapshots",
+                          "max_restore_bytes_per_sec": "20mb"
+                        }
+                      ],
+                      "name": "my_snap_repo"
+                    }
+        argumentDocs:
+            api_key: (String, Sensitive) API Key to use for authentication to Elasticsearch
+            ca_data: (String) PEM-encoded custom Certificate Authority certificate
+            ca_file: (String) Path to a custom Certificate Authority certificate
+            cert_data: (String) PEM encoded certificate for client auth
+            cert_file: (String) Path to a file containing the PEM encoded certificate for client auth
+            elasticsearch_connection: '(Block List, Max: 1, Deprecated) Elasticsearch connection configuration block. This property will be removed in a future provider version. Configure the Elasticsearch connection via the provider configuration instead. (see below for nested schema)'
+            endpoints: (List of String, Sensitive) A list of endpoints where the terraform provider will point to, this must include the http(s) schema and port number.
+            expand_wildcards: (String) Determines how wildcard patterns in the indices parameter match data streams and indices. Supports comma-separated values, such as closed,hidden.
+            expire_after: (String) Time period after which a snapshot is considered expired and eligible for deletion.
+            feature_states: (Set of String) Feature states to include in the snapshot.
+            id: (String) Internal identifier of the resource
+            ignore_unavailable: (Boolean) If false, the snapshot fails if any data stream or index in indices is missing or closed. If true, the snapshot ignores missing or closed data streams and indices.
+            include_global_state: (Boolean) If true, include the cluster state in the snapshot.
+            indices: (List of String) Comma-separated list of data streams and indices to include in the snapshot.
+            insecure: (Boolean) Disable TLS certificate validation
+            key_data: (String, Sensitive) PEM encoded private key for client auth
+            key_file: (String) Path to a file containing the PEM encoded private key for client auth
+            max_count: (Number) Maximum number of snapshots to retain, even if the snapshots have not yet expired.
+            metadata: (String) Attaches arbitrary metadata to the snapshot.
+            min_count: (Number) Minimum number of snapshots to retain, even if the snapshots have expired.
+            name: (String) ID for the snapshot lifecycle policy you want to create or update.
+            partial: (Boolean) If false, the entire snapshot will fail if one or more indices included in the snapshot do not have all primary shards available.
+            password: (String, Sensitive) Password to use for API authentication to Elasticsearch.
+            repository: (String) Repository used to store snapshots created by this policy.
+            schedule: (String) Periodic or absolute schedule at which the policy creates snapshots.
+            snapshot_name: (String) Name automatically assigned to each snapshot created by the policy.
+            username: (String) Username to use for API authentication to Elasticsearch.
+        importStatements:
+            - terraform import elasticstack_elasticsearch_snapshot_lifecycle.my_policy <cluster_uuid>/<slm policy name>
+    elasticstack_elasticsearch_snapshot_repository:
+        subCategory: Snapshot
+        description: Registers or updates a snapshot repository.
+        name: elasticstack_elasticsearch_snapshot_repository
+        title: elasticstack_elasticsearch_snapshot_repository Resource
+        examples:
+            - name: my_url_repo
+              manifest: |-
+                {
+                  "name": "my_url_repo",
+                  "url": [
+                    {
+                      "url": "https://example.com/repo"
+                    }
+                  ]
+                }
+            - name: my_fs_repo
+              manifest: |-
+                {
+                  "fs": [
+                    {
+                      "compress": true,
+                      "location": "/tmp",
+                      "max_restore_bytes_per_sec": "10mb"
+                    }
+                  ],
+                  "name": "my_fs_repo"
+                }
+        argumentDocs:
+            api_key: (String, Sensitive) API Key to use for authentication to Elasticsearch
+            azure: '(Block List, Max: 1) Support for using Azure Blob storage as a repository for Snapshot/Restore. See: https://www.elastic.co/guide/en/elasticsearch/plugins/current/repository-azure.html (see below for nested schema)'
+            base_path: (String) Specifies the path within the container to the repository data.
+            bucket: (String) The name of the bucket to be used for snapshots.
+            buffer_size: (String) Minimum threshold below which the chunk is uploaded using a single request.
+            ca_data: (String) PEM-encoded custom Certificate Authority certificate
+            ca_file: (String) Path to a custom Certificate Authority certificate
+            canned_acl: (String) The S3 repository supports all S3 canned ACLs.
+            cert_data: (String) PEM encoded certificate for client auth
+            cert_file: (String) Path to a file containing the PEM encoded certificate for client auth
+            chunk_size: (String) Maximum size of files in snapshots.
+            client: (String) Azure named client to use.
+            compress: (Boolean) If true, metadata files, such as index mappings and settings, are compressed in snapshots.
+            container: (String) Container name. You must create the Azure container before creating the repository.
+            elasticsearch_connection: '(Block List, Max: 1, Deprecated) Elasticsearch connection configuration block. This property will be removed in a future provider version. Configure the Elasticsearch connection via the provider configuration instead. (see below for nested schema)'
+            endpoints: (List of String, Sensitive) A list of endpoints where the terraform provider will point to, this must include the http(s) schema and port number.
+            fs: '(Block List, Max: 1) Shared filesystem repository. Repositories of this type use a shared filesystem to store snapshots. This filesystem must be accessible to all master and data nodes in the cluster. (see below for nested schema)'
+            gcs: '(Block List, Max: 1) Support for using the Google Cloud Storage service as a repository for Snapshot/Restore. See: https://www.elastic.co/guide/en/elasticsearch/plugins/current/repository-gcs.html (see below for nested schema)'
+            hdfs: '(Block List, Max: 1) Support for using HDFS File System as a repository for Snapshot/Restore. See: https://www.elastic.co/guide/en/elasticsearch/plugins/current/repository-hdfs.html (see below for nested schema)'
+            http_max_retries: (Number) Maximum number of retries for http and https URLs.
+            http_socket_timeout: (String) Maximum wait time for data transfers over a connection.
+            id: (String) Internal identifier of the resource
+            insecure: (Boolean) Disable TLS certificate validation
+            key_data: (String, Sensitive) PEM encoded private key for client auth
+            key_file: (String) Path to a file containing the PEM encoded private key for client auth
+            load_defaults: (Boolean) Whether to load the default Hadoop configuration or not.
+            location: (String) Location of the shared filesystem used to store and retrieve snapshots.
+            location_mode: '(String) Location mode. primary_only or secondary_only. See: https://docs.microsoft.com/en-us/azure/storage/common/storage-redundancy'
+            max_number_of_snapshots: (Number) Maximum number of snapshots the repository can contain.
+            max_restore_bytes_per_sec: (String) Maximum snapshot restore rate per node.
+            max_snapshot_bytes_per_sec: (String) Maximum snapshot creation rate per node.
+            name: (String) Name of the snapshot repository to register or update.
+            password: (String, Sensitive) Password to use for API authentication to Elasticsearch.
+            path: (String) The file path within the filesystem where data is stored/loaded.
+            path_style_access: (Boolean) If true, path style access pattern will be used.
+            readonly: (Boolean) If true, the repository is read-only.
+            s3: '(Block List, Max: 1) Support for using AWS S3 as a repository for Snapshot/Restore. See: https://www.elastic.co/guide/en/elasticsearch/plugins/current/repository-s3-repository.html (see below for nested schema)'
+            server_side_encryption: (Boolean) When true, files are encrypted server-side using AES-256 algorithm.
+            storage_class: (String) Sets the S3 storage class for objects stored in the snapshot repository.
+            uri: '(String) The uri address for hdfs. ex: "hdfs://:/".'
+            url: '(Block List, Max: 1) URL repository. Repositories of this type are read-only for the cluster. This means the cluster can retrieve or restore snapshots from the repository but cannot write or create snapshots in it. (see below for nested schema)'
+            username: (String) Username to use for API authentication to Elasticsearch.
+            verify: (Boolean) If true, the request verifies the repository is functional on all master and data nodes in the cluster.
+        importStatements:
+            - terraform import elasticstack_elasticsearch_snapshot_repository.my_repository <cluster_uuid>/<repository name>
+    elasticstack_elasticsearch_transform:
+        subCategory: Transform
+        description: Manages transforms. Transforms enable you to convert existing Elasticsearch indices into summarized indices.
+        name: elasticstack_elasticsearch_transform
+        title: elasticstack_elasticsearch_transform Resource
+        examples:
+            - name: transform_with_pivot
+              manifest: |-
+                {
+                  "defer_validation": false,
+                  "description": "A meaningful description",
+                  "destination": [
+                    {
+                      "index": "destination_index_for_transform"
+                    }
+                  ],
+                  "enabled": false,
+                  "frequency": "5m",
+                  "max_page_search_size": 2000,
+                  "name": "transform-pivot",
+                  "pivot": "${jsonencode({\n    \"group_by\" : {\n      \"customer_id\" : {\n        \"terms\" : {\n          \"field\" : \"customer_id\",\n          \"missing_bucket\" : true\n        }\n      }\n    },\n    \"aggregations\" : {\n      \"max_price\" : {\n        \"max\" : {\n          \"field\" : \"taxful_total_price\"\n        }\n      }\n    }\n  })}",
+                  "retention_policy": [
+                    {
+                      "time": [
+                        {
+                          "field": "order_date",
+                          "max_age": "30d"
+                        }
+                      ]
+                    }
+                  ],
+                  "source": [
+                    {
+                      "indices": [
+                        "names_or_patterns_for_input_index"
+                      ]
+                    }
+                  ],
+                  "sync": [
+                    {
+                      "time": [
+                        {
+                          "delay": "10s",
+                          "field": "order_date"
+                        }
+                      ]
+                    }
+                  ]
+                }
+        argumentDocs:
+            align_checkpoints: (Boolean) Specifies whether the transform checkpoint ranges should be optimized for performance.
+            dates_as_epoch_millis: (Boolean) Defines if dates in the output should be written as ISO formatted string (default) or as millis since epoch.
+            deduce_mappings: (Boolean) Specifies whether the transform should deduce the destination index mappings from the transform config.
+            defer_validation: (Boolean) When true, deferrable validations are not run upon creation, but rather when the transform is started. This behavior may be desired if the source index does not exist until after the transform is created. Default is false
+            delay: (String) The time delay between the current time and the latest input data time. The default value is 60s.
+            description: (String) Free text description of the transform.
+            destination: '(Block List, Min: 1, Max: 1) The destination for the transform. (see below for nested schema)'
+            docs_per_second: (Number) Specifies a limit on the number of input documents per second. Default (unset) value disables throttling.
+            enabled: (Boolean) Controls wether the transform should be started or stopped. Default is false (stopped).
+            field: (String) The date field that is used to calculate the age of the document.
+            frequency: (String) The interval between checks for changes in the source indices when the transform is running continuously. Defaults to 1m.
+            id: (String) Internal identifier of the resource
+            index: (String) The destination index for the transform.
+            indices: (List of String) The source indices for the transform.
+            latest: (String) The latest method transforms the data by finding the latest document for each unique key. JSON definition expected. Either 'pivot' or 'latest' must be present.
+            max_age: (String) Specifies the maximum age of a document in the destination index.
+            max_page_search_size: (Number) Defines the initial page size to use for the composite aggregation for each checkpoint. Default is 500.
+            metadata: (String) Defines optional transform metadata.
+            name: (String) Name of the transform you wish to create.
+            num_failure_retries: (Number) Defines the number of retries on a recoverable failure before the transform task is marked as failed. The default value is the cluster-level setting num_transform_failure_retries.
+            pipeline: (String) The unique identifier for an ingest pipeline.
+            pivot: (String) The pivot method transforms the data by aggregating and grouping it. JSON definition expected. Either 'pivot' or 'latest' must be present.
+            query: (String) A query clause that retrieves a subset of data from the source index.
+            retention_policy: '(Block List, Max: 1) Defines a retention policy for the transform. (see below for nested schema)'
+            runtime_mappings: (String) Definitions of search-time runtime fields that can be used by the transform.
+            source: '(Block List, Min: 1, Max: 1) The source of the data for the transform. (see below for nested schema)'
+            sync: '(Block List, Max: 1) Defines the properties transforms require to run continuously. (see below for nested schema)'
+            time: '(Block List, Min: 1, Max: 1) Specifies that the transform uses a time field to set the retention policy. This is currently the only supported option. (see below for nested schema)'
+            timeout: (String) Period to wait for a response from Elastisearch when performing any management operation. If no response is received before the timeout expires, the operation fails and returns an error. Defaults to 30s.
+            unattended: (Boolean) In unattended mode, the transform retries indefinitely in case of an error which means the transform never fails.
+        importStatements:
+            - terraform import elasticstack_elasticsearch_tranform.my_new_transform <cluster_uuid>/<transform_name>
+    elasticstack_elasticsearch_watch:
+        subCategory: Watcher
+        description: Adds and manages a Watch.
+        name: elasticstack_elasticsearch_watch
+        title: elasticstack_elasticsearch_watch Resource
+        examples:
+            - name: example
+              manifest: |-
+                {
+                  "actions": "${jsonencode({})}",
+                  "active": true,
+                  "condition": "${jsonencode({\n    \"always\" = {}\n  })}",
+                  "input": "${jsonencode({\n    \"none\" = {}\n  })}",
+                  "metadata": "${jsonencode({\n    \"example_key\" = \"example_value\"\n  })}",
+                  "throttle_period_in_millis": 10000,
+                  "transform": "${jsonencode({\n    \"script\" = \"return [ 'time' : ctx.trigger.scheduled_time ]\"\n  })}",
+                  "trigger": "${jsonencode({\n    \"schedule\" = {\n      \"cron\" = \"0 0/1 * * * ?\"\n    }\n  })}",
+                  "watch_id": "test_watch"
+                }
+        argumentDocs:
+            actions: (String) The list of actions that will be run if the condition matches.
+            active: (Boolean) Defines whether the watch is active or inactive by default. The default value is true, which means the watch is active by default.
+            condition: (String) The condition that defines if the actions should be run.
+            id: (String) Internal identifier of the resource.
+            input: (String) The input that defines the input that loads the data for the watch.
+            metadata: (String) Metadata json that will be copied into the history entries.
+            throttle_period_in_millis: (Number) Minimum time in milliseconds between actions being run. Defaults to 5000.
+            transform: (String) Processes the watch payload to prepare it for the watch actions.
+            trigger: (String) The trigger that defines when the watch should run.
+            watch_id: (String) Identifier for the watch.
+        importStatements:
+            - terraform import elasticstack_elasticsearch_watch.watch_id <cluster_uuid>/<watch ID>
+    elasticstack_fleet_agent_policy:
+        subCategory: Fleet
+        description: Creates or updates a Fleet Agent Policy.
+        name: elasticstack_fleet_agent_policy
+        title: elasticstack_fleet_agent_policy Resource
+        examples:
+            - name: test_policy
+              manifest: |-
+                {
+                  "description": "Test Agent Policy",
+                  "monitor_logs": true,
+                  "monitor_metrics": true,
+                  "name": "Test Policy",
+                  "namespace": "default",
+                  "sys_monitoring": true
+                }
+        argumentDocs:
+            data_output_id: (String) The identifier for the data output.
+            description: (String) The description of the agent policy.
+            download_source_id: (String) The identifier for the Elastic Agent binary download server.
+            fleet_server_host_id: (String) The identifier for the Fleet server host.
+            id: (String) The ID of this resource.
+            monitor_logs: (Boolean) Enable collection of agent logs.
+            monitor_metrics: (Boolean) Enable collection of agent metrics.
+            monitoring_output_id: (String) The identifier for monitoring output.
+            name: (String) The name of the agent policy.
+            namespace: (String) The namespace of the agent policy.
+            policy_id: (String) Unique identifier of the agent policy.
+            skip_destroy: (Boolean) Set to true if you do not wish the agent policy to be deleted at destroy time, and instead just remove the agent policy from the Terraform state.
+            sys_monitoring: (Boolean) Enable collection of system logs and metrics.
+        importStatements:
+            - terraform import elasticstack_kibana_fleet_agent_policy.my_policy <space id>/<policy id>
+    elasticstack_fleet_output:
+        subCategory: Fleet
+        description: Creates or updates a Fleet Output.
+        name: elasticstack_fleet_output
+        title: elasticstack_fleet_output Resource
+        examples:
+            - name: test_output
+              manifest: |-
+                {
+                  "config_yaml": "${yamlencode({\n    \"ssl.verification_mode\" : \"none\"\n  })}",
+                  "default_integrations": false,
+                  "default_monitoring": false,
+                  "hosts": [
+                    "https://elasticsearch:9200"
+                  ],
+                  "name": "Test Output",
+                  "type": "elasticsearch"
+                }
+        argumentDocs:
+            ca_sha256: (String) Fingerprint of the Elasticsearch CA certificate.
+            config_yaml: (String, Sensitive) Advanced YAML configuration. YAML settings here will be added to the output section of each agent policy.
+            default_integrations: (Boolean) Make this output the default for agent integrations.
+            default_monitoring: (Boolean) Make this output the default for agent monitoring.
+            hosts: (List of String) A list of hosts.
+            id: (String) The ID of this resource.
+            name: (String) The name of the output.
+            output_id: (String) Unique identifier of the output.
+            type: (String) The output type.
+        importStatements:
+            - terraform import elasticstack_fleet_output.my_output <space id>/<output id>
+    elasticstack_fleet_server_host:
+        subCategory: Fleet
+        description: Creates or updates a Fleet Server Host.
+        name: elasticstack_fleet_server_host
+        title: elasticstack_fleet_server_host Resource
+        examples:
+            - name: test_host
+              manifest: |-
+                {
+                  "default": false,
+                  "hosts": [
+                    "https://fleet-server:8220"
+                  ],
+                  "name": "Test Host"
+                }
+        argumentDocs:
+            default: (Boolean) Set as default.
+            host_id: (String) Unique identifier of the Fleet server host.
+            hosts: (List of String) A list of hosts.
+            id: (String) The ID of this resource.
+            name: (String) The name of the Fleet server host.
+        importStatements:
+            - terraform import elasticstack_fleet_server_host.my_host <space id>/<host id>
+    elasticstack_kibana_action_connector:
+        subCategory: Kibana
+        description: Creates or updates a Kibana action connector. See https://www.elastic.co/guide/en/kibana/current/action-types.html
+        name: elasticstack_kibana_action_connector
+        title: elasticstack_kibana_action_connector Resource
+        examples:
+            - name: example
+              manifest: |-
+                {
+                  "config": "${jsonencode({\n    index   = \".kibana\"\n    refresh = true\n  })}",
+                  "connector_type_id": ".index",
+                  "name": "%s"
+                }
+            - name: pagerduty-connector
+              manifest: |-
+                {
+                  "config": "${jsonencode({\n    apiUrl = \"https://events.pagerduty.com/v2/enqueue\"\n  })}",
+                  "connector_type_id": ".pagerduty",
+                  "name": "pagerduty",
+                  "secrets": "${jsonencode({\n    routingKey = pagerduty_service_integration.kibana.integration_key\n  })}"
+                }
+            - name: slack-connector
+              manifest: |-
+                {
+                  "connector_type_id": ".slack",
+                  "name": "slack",
+                  "secrets": "${jsonencode({\n    webhookUrl = \"\u003cyour-webhookUrl\u003e\"\n  })}"
+                }
+        argumentDocs:
+            config: (String) The configuration for the connector. Configuration properties vary depending on the connector type.
+            connector_id: (String) A UUID v1 or v4 to use instead of a randomly generated ID.
+            connector_type_id: (String) The ID of the connector type, e.g. .index.
+            id: (String) The ID of this resource.
+            is_deprecated: (Boolean) Indicates whether the connector type is deprecated.
+            is_missing_secrets: (Boolean) Indicates whether secrets are missing for the connector.
+            is_preconfigured: (Boolean) Indicates whether it is a preconfigured connector.
+            name: (String) The name of the connector. While this name does not have to be unique, a distinctive name can help you identify a connector.
+            secrets: (String) The secrets configuration for the connector. Secrets configuration properties vary depending on the connector type.
+            space_id: (String) An identifier for the space. If space_id is not provided, the default space is used.
+        importStatements:
+            - terraform import elasticstack_kibana_action_connector.my_connector <space id>/<connector id>
+    elasticstack_kibana_alerting_rule:
+        subCategory: Kibana
+        description: Creates or updates a Kibana alerting rule.
+        name: elasticstack_kibana_alerting_rule
+        title: elasticstack_kibana_alerting_rule Resource
+        examples:
+            - name: example
+              manifest: |-
+                {
+                  "consumer": "alerts",
+                  "enabled": true,
+                  "interval": "1m",
+                  "name": "%s",
+                  "notify_when": "onActiveAlert",
+                  "params": "${jsonencode({\n    aggType             = \"avg\"\n    groupBy             = \"top\"\n    termSize            = 10\n    timeWindowSize      = 10\n    timeWindowUnit      = \"s\"\n    threshold           = [10]\n    thresholdComparator = \"\u003e\"\n    index               = [\"test-index\"]\n    timeField           = \"@timestamp\"\n    aggField            = \"version\"\n    termField           = \"name\"\n  })}",
+                  "rule_type_id": ".index-threshold"
+                }
+        argumentDocs:
+            actions: (Block List) An action that runs under defined conditions. (see below for nested schema)
+            consumer: (String) The name of the application or feature that owns the rule.
+            enabled: (Boolean) Indicates if you want to run the rule on an interval basis.
+            group: (String) The group name, which affects when the action runs (for example, when the threshold is met or when the alert is recovered). Each rule type has a list of valid action group names.
+            id: (String) The ID of this resource.
+            interval: (String) The check interval, which specifies how frequently the rule conditions are checked. The interval must be specified in seconds, minutes, hours or days.
+            last_execution_date: (String) Date of the last execution of this rule.
+            last_execution_status: (String) Status of the last execution of this rule.
+            name: (String) The name of the rule. While this name does not have to be unique, a distinctive name can help you identify a rule.
+            notify_when: '(String) Defines how often alerts generate actions. Valid values include: onActionGroupChange: Actions run when the alert status changes; onActiveAlert: Actions run when the alert becomes active and at each check interval while the rule conditions are met; onThrottleInterval: Actions run when the alert becomes active and at the interval specified in the throttle property while the rule conditions are met. NOTE: This is a rule level property; if you update the rule in Kibana, it is automatically changed to use action-specific notify_when values.'
+            params: (String) The rule parameters, which differ for each rule type.
+            rule_id: (String) A UUID v1 or v4 to use instead of a randomly generated ID.
+            rule_type_id: (String) The ID of the rule type that you want to call when the rule is scheduled to run. For more information about the valid values, list the rule types using Get rule types API or refer to the Rule types documentation.
+            scheduled_task_id: (String) ID of the scheduled task that will execute the alert.
+            space_id: (String) An identifier for the space. If space_id is not provided, the default space is used.
+            tags: (List of String) A list of tag names that are applied to the rule.
+            throttle: '(String) Defines how often an alert generates repeated actions. This custom action interval must be specified in seconds, minutes, hours, or days. For example, 10m or 1h. This property is applicable only if notify_when is onThrottleInterval. NOTE: This is a rule level property; if you update the rule in Kibana, it is automatically changed to use action-specific throttle values.'
+        importStatements:
+            - terraform import elasticstack_kibana_alerting_rule.my_rule <space id>/<rule id>
+    elasticstack_kibana_slo:
+        subCategory: Kibana
+        description: Creates or updates a Kibana SLO.
+        name: elasticstack_kibana_slo
+        title: elasticstack_kibana_slo Resource
+        examples:
+            - name: auth_server_latency
+              manifest: |-
+                {
+                  "apm_latency_indicator": [
+                    {
+                      "environment": "production",
+                      "index": "metrics-apm*",
+                      "service": "auth",
+                      "threshold": 500,
+                      "transaction_name": "GET /auth",
+                      "transaction_type": "request"
+                    }
+                  ],
+                  "budgeting_method": "timeslices",
+                  "description": "Ensures auth server is responding in time",
+                  "name": "Auth server latency",
+                  "objective": [
+                    {
+                      "target": 0.95,
+                      "timeslice_target": 0.95,
+                      "timeslice_window": "5m"
+                    }
+                  ],
+                  "settings": [
+                    {
+                      "frequency": "5m",
+                      "sync_delay": "5m"
+                    }
+                  ],
+                  "time_window": [
+                    {
+                      "duration": "7d",
+                      "type": "rolling"
+                    }
+                  ]
+                }
+            - name: auth_server_availability
+              manifest: |-
+                {
+                  "apm_availability_indicator": [
+                    {
+                      "environment": "production",
+                      "index": "metrics-apm*",
+                      "service": "my-service",
+                      "transaction_name": "GET /sup/dawg",
+                      "transaction_type": "request"
+                    }
+                  ],
+                  "budgeting_method": "timeslices",
+                  "description": "Ensures auth server is responding in time",
+                  "name": "Auth server latency",
+                  "objective": [
+                    {
+                      "target": 0.95,
+                      "timeslice_target": 0.95,
+                      "timeslice_window": "5m"
+                    }
+                  ],
+                  "settings": [
+                    {
+                      "frequency": "5m",
+                      "sync_delay": "5m"
+                    }
+                  ],
+                  "time_window": [
+                    {
+                      "duration": "7d",
+                      "type": "rolling"
+                    }
+                  ]
+                }
+            - name: custom_kql
+              manifest: |-
+                {
+                  "budgeting_method": "timeslices",
+                  "description": "custom kql",
+                  "kql_custom_indicator": [
+                    {
+                      "filter": "labels.groupId: group-0",
+                      "good": "latency \u003c 300",
+                      "index": "my-index",
+                      "timestamp_field": "custom_timestamp",
+                      "total": "*"
+                    }
+                  ],
+                  "name": "custom kql",
+                  "objective": [
+                    {
+                      "target": 0.95,
+                      "timeslice_target": 0.95,
+                      "timeslice_window": "5m"
+                    }
+                  ],
+                  "settings": [
+                    {
+                      "frequency": "5m",
+                      "sync_delay": "5m"
+                    }
+                  ],
+                  "time_window": [
+                    {
+                      "duration": "7d",
+                      "type": "rolling"
+                    }
+                  ]
+                }
+            - name: custom_histogram
+              manifest: |-
+                {
+                  "budgeting_method": "timeslices",
+                  "description": "custom histogram",
+                  "histogram_custom_indicator": [
+                    {
+                      "filter": "labels.groupId: group-0",
+                      "good": [
+                        {
+                          "aggregation": "value_count",
+                          "field": "test",
+                          "filter": "latency \u003c 300"
+                        }
+                      ],
+                      "index": "my-index",
+                      "timestamp_field": "custom_timestamp",
+                      "total": [
+                        {
+                          "aggregation": "value_count",
+                          "field": "test"
+                        }
+                      ]
+                    }
+                  ],
+                  "name": "custom histogram",
+                  "objective": [
+                    {
+                      "target": 0.95,
+                      "timeslice_target": 0.95,
+                      "timeslice_window": "5m"
+                    }
+                  ],
+                  "time_window": [
+                    {
+                      "duration": "7d",
+                      "type": "rolling"
+                    }
+                  ]
+                }
+            - name: custom_metric
+              manifest: |-
+                {
+                  "budgeting_method": "timeslices",
+                  "description": "custom kql",
+                  "metric_custom_indicator": [
+                    {
+                      "good": [
+                        {
+                          "equation": "A",
+                          "metrics": [
+                            {
+                              "aggregation": "sum",
+                              "field": "processor.processed",
+                              "name": "A"
+                            }
+                          ]
+                        }
+                      ],
+                      "index": "my-index",
+                      "total": [
+                        {
+                          "equation": "A",
+                          "metrics": [
+                            {
+                              "aggregation": "sum",
+                              "field": "processor.accepted",
+                              "name": "A"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "name": "custom kql",
+                  "objective": [
+                    {
+                      "target": 0.95,
+                      "timeslice_target": 0.95,
+                      "timeslice_window": "5m"
+                    }
+                  ],
+                  "time_window": [
+                    {
+                      "duration": "7d",
+                      "type": "rolling"
+                    }
+                  ]
+                }
+        argumentDocs:
+            aggregation: (String)
+            apm_availability_indicator: '(Block List, Max: 1) (see below for nested schema)'
+            apm_latency_indicator: '(Block List, Max: 1) (see below for nested schema)'
+            budgeting_method: (String) An occurrences budgeting method uses the number of good and total events during the time window. A timeslices budgeting method uses the number of good slices and total slices during the time window. A slice is an arbitrary time window (smaller than the overall SLO time window) that is either considered good or bad, calculated from the timeslice threshold and the ratio of good over total events that happened during the slice window. A budgeting method is required and must be either occurrences or timeslices.
+            description: (String) A description for the SLO.
+            duration: (String)
+            environment: (String)
+            equation: (String)
+            field: (String)
+            filter: (String)
+            frequency: (String)
+            from: (Number)
+            good: '(Block List, Min: 1, Max: 1) (see below for nested schema)'
+            group_by: (String) Optional group by field to use to generate an SLO per distinct value.
+            histogram_custom_indicator: '(Block List, Max: 1) (see below for nested schema)'
+            id: (String) An ID (8 and 36 characters). If omitted, a UUIDv1 will be generated server-side.
+            index: (String)
+            kql_custom_indicator: '(Block List, Max: 1) (see below for nested schema)'
+            metric_custom_indicator: '(Block List, Max: 1) (see below for nested schema)'
+            metrics: '(Block List, Min: 1) (see below for nested schema)'
+            name: (String) The name of the SLO.
+            objective: '(Block List, Min: 1, Max: 1) The target objective is the value the SLO needs to meet during the time window. If a timeslices budgeting method is used, we also need to define the timesliceTarget which can be different than the overall SLO target. (see below for nested schema)'
+            service: (String)
+            settings: '(Block List, Max: 1) The default settings should be sufficient for most users, but if needed, these properties can be overwritten. (see below for nested schema)'
+            space_id: (String) An identifier for the space. If space_id is not provided, the default space is used.
+            sync_delay: (String)
+            target: (Number)
+            threshold: (Number)
+            time_window: '(Block List, Min: 1, Max: 1) Currently support calendarAligned and rolling time windows. Any duration greater than 1 day can be used: days, weeks, months, quarters, years. Rolling time window requires a duration, e.g. 1w for one week, and type: rolling. SLOs defined with such time window, will only consider the SLI data from the last duration period as a moving window. Calendar aligned time window requires a duration, limited to 1M for monthly or 1w for weekly, and type: calendarAligned. (see below for nested schema)'
+            timeslice_target: (Number)
+            timeslice_window: (String)
+            timestamp_field: (String)
+            to: (Number)
+            total: '(Block List, Min: 1, Max: 1) (see below for nested schema)'
+            transaction_name: (String)
+            transaction_type: (String)
+            type: (String)
+        importStatements:
+            - terraform import elasticstack_kibana_slo.my_slo <space id>/<slo id>
+    elasticstack_kibana_space:
+        subCategory: Kibana
+        description: Creates or updates a Kibana space.
+        name: elasticstack_kibana_space
+        title: elasticstack_kibana_space Resource
+        examples:
+            - name: example
+              manifest: |-
+                {
+                  "description": "A fresh space for testing visualisations",
+                  "disabled_features": [
+                    "ingestManager",
+                    "enterpriseSearch"
+                  ],
+                  "initials": "ts",
+                  "name": "Test Space",
+                  "space_id": "test_space"
+                }
+        argumentDocs:
+            color: (String) The hexadecimal color code used in the space avatar. By default, the color is automatically generated from the space name.
+            description: (String) The description for the space.
+            disabled_features: (Set of String) The list of disabled features for the space. To get a list of available feature IDs, use the Features API (https://www.elastic.co/guide/en/kibana/master/features-api-get.html).
+            id: (String) Internal identifier of the resource.
+            initials: (String) The initials shown in the space avatar. By default, the initials are automatically generated from the space name. Initials must be 1 or 2 characters.
+            name: (String) The display name for the space.
+            space_id: (String) The space ID that is part of the Kibana URL when inside the space.
+        importStatements:
+            - terraform import elasticstack_kibana_space.my_space <cluster_uuid>/<space id>

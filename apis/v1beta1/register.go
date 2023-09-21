@@ -13,7 +13,7 @@ import (
 
 // Package type metadata.
 const (
-	Group   = "elasticstack.elasticstack.k8s.elastic.co"
+	Group   = "elasticstack.k8s.elastic.co"
 	Version = "v1beta1"
 )
 

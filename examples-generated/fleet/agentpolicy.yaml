@@ -1,0 +1,16 @@
+apiVersion: fleet.elasticstack.k8s.elastic.co/v1alpha1
+kind: AgentPolicy
+metadata:
+  annotations:
+    meta.upbound.io/example-id: fleet/v1alpha1/agentpolicy
+  labels:
+    testing.upbound.io/example-name: test_policy
+  name: test-policy
+spec:
+  forProvider:
+    description: Test Agent Policy
+    monitorLogs: true
+    monitorMetrics: true
+    name: Test Policy
+    namespace: default
+    sysMonitoring: true

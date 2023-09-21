@@ -1,0 +1,25 @@
+apiVersion: elasticsearch.elasticstack.k8s.elastic.co/v1alpha1
+kind: SecuritySystemUser
+metadata:
+  annotations:
+    meta.upbound.io/example-id: elasticsearch/v1alpha1/securitysystemuser
+  labels:
+    testing.upbound.io/example-name: kibana_system
+  name: kibana-system
+spec:
+  forProvider:
+    elasticsearchConnection:
+    - endpointsSecretRef:
+      - key: example-key
+        name: example-secret
+        namespace: upbound-system
+      passwordSecretRef:
+        key: example-key
+        name: example-secret
+        namespace: upbound-system
+      username: elastic
+    passwordHashSecretRef:
+      key: example-key
+      name: example-secret
+      namespace: upbound-system
+    username: kibana_system

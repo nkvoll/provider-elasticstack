@@ -1,0 +1,30 @@
+apiVersion: kibana.elasticstack.k8s.elastic.co/v1alpha1
+kind: AlertingRule
+metadata:
+  annotations:
+    meta.upbound.io/example-id: kibana/v1alpha1/alertingrule
+  labels:
+    testing.upbound.io/example-name: example
+  name: example
+spec:
+  forProvider:
+    consumer: alerts
+    enabled: true
+    interval: 1m
+    name: '%s'
+    notifyWhen: onActiveAlert
+    params: |-
+      ${jsonencode({
+          aggType             = "avg"
+          groupBy             = "top"
+          termSize            = 10
+          timeWindowSize      = 10
+          timeWindowUnit      = "s"
+          threshold           = [10]
+          thresholdComparator = ">"
+          index               = ["test-index"]
+          timeField           = "@timestamp"
+          aggField            = "version"
+          termField           = "name"
+        })}
+    ruleTypeId: .index-threshold

@@ -1,0 +1,618 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.13.0
+  name: datastreams.elasticsearch.elasticstack.k8s.elastic.co
+spec:
+  group: elasticsearch.elasticstack.k8s.elastic.co
+  names:
+    categories:
+    - crossplane
+    - managed
+    - elasticstack
+    kind: DataStream
+    listKind: DataStreamList
+    plural: datastreams
+    singular: datastream
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.conditions[?(@.type=='Ready')].status
+      name: READY
+      type: string
+    - jsonPath: .status.conditions[?(@.type=='Synced')].status
+      name: SYNCED
+      type: string
+    - jsonPath: .metadata.annotations.crossplane\.io/external-name
+      name: EXTERNAL-NAME
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: AGE
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: DataStream is the Schema for the DataStreams API. Manages Elasticsearch
+          Data Streams
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: DataStreamSpec defines the desired state of DataStream
+            properties:
+              deletionPolicy:
+                default: Delete
+                description: 'DeletionPolicy specifies what will happen to the underlying
+                  external when this managed resource is deleted - either "Delete"
+                  or "Orphan" the external resource. This field is planned to be deprecated
+                  in favor of the ManagementPolicies field in a future release. Currently,
+                  both could be set independently and non-default values would be
+                  honored if the feature flag is enabled. See the design doc for more
+                  information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223'
+                enum:
+                - Orphan
+                - Delete
+                type: string
+              forProvider:
+                properties:
+                  elasticsearchConnection:
+                    description: '(Block List, Max: 1, Deprecated) Elasticsearch connection
+                      configuration block. This property will be removed in a future
+                      provider version. Configure the Elasticsearch connection via
+                      the provider configuration instead. (see below for nested schema)
+                      Elasticsearch connection configuration block. This property
+                      will be removed in a future provider version. Configure the
+                      Elasticsearch connection via the provider configuration instead.'
+                    items:
+                      properties:
+                        apiKeySecretRef:
+                          description: (String, Sensitive) API Key to use for authentication
+                            to Elasticsearch API Key to use for authentication to
+                            Elasticsearch
+                          properties:
+                            key:
+                              description: The key to select.
+                              type: string
+                            name:
+                              description: Name of the secret.
+                              type: string
+                            namespace:
+                              description: Namespace of the secret.
+                              type: string
+                          required:
+                          - key
+                          - name
+                          - namespace
+                          type: object
+                        caData:
+                          description: encoded custom Certificate Authority certificate
+                            PEM-encoded custom Certificate Authority certificate
+                          type: string
+                        caFile:
+                          description: (String) Path to a custom Certificate Authority
+                            certificate Path to a custom Certificate Authority certificate
+                          type: string
+                        certData:
+                          description: (String) PEM encoded certificate for client
+                            auth PEM encoded certificate for client auth
+                          type: string
+                        certFile:
+                          description: (String) Path to a file containing the PEM
+                            encoded certificate for client auth Path to a file containing
+                            the PEM encoded certificate for client auth
+                          type: string
+                        endpointsSecretRef:
+                          items:
+                            description: A SecretKeySelector is a reference to a secret
+                              key in an arbitrary namespace.
+                            properties:
+                              key:
+                                description: The key to select.
+                                type: string
+                              name:
+                                description: Name of the secret.
+                                type: string
+                              namespace:
+                                description: Namespace of the secret.
+                                type: string
+                            required:
+                            - key
+                            - name
+                            - namespace
+                            type: object
+                          type: array
+                        insecure:
+                          description: (Boolean) Disable TLS certificate validation
+                            Disable TLS certificate validation
+                          type: boolean
+                        keyDataSecretRef:
+                          description: (String, Sensitive) PEM encoded private key
+                            for client auth PEM encoded private key for client auth
+                          properties:
+                            key:
+                              description: The key to select.
+                              type: string
+                            name:
+                              description: Name of the secret.
+                              type: string
+                            namespace:
+                              description: Namespace of the secret.
+                              type: string
+                          required:
+                          - key
+                          - name
+                          - namespace
+                          type: object
+                        keyFile:
+                          description: (String) Path to a file containing the PEM
+                            encoded private key for client auth Path to a file containing
+                            the PEM encoded private key for client auth
+                          type: string
+                        passwordSecretRef:
+                          description: (String, Sensitive) Password to use for API
+                            authentication to Elasticsearch. Password to use for API
+                            authentication to Elasticsearch.
+                          properties:
+                            key:
+                              description: The key to select.
+                              type: string
+                            name:
+                              description: Name of the secret.
+                              type: string
+                            namespace:
+                              description: Namespace of the secret.
+                              type: string
+                          required:
+                          - key
+                          - name
+                          - namespace
+                          type: object
+                        username:
+                          description: (String) Username to use for API authentication
+                            to Elasticsearch. Username to use for API authentication
+                            to Elasticsearch.
+                          type: string
+                      type: object
+                    type: array
+                  name:
+                    description: (String) Name of the data stream to create. Name
+                      of the data stream to create.
+                    type: string
+                type: object
+              initProvider:
+                description: THIS IS AN ALPHA FIELD. Do not use it in production.
+                  It is not honored unless the relevant Crossplane feature flag is
+                  enabled, and may be changed or removed without notice. InitProvider
+                  holds the same fields as ForProvider, with the exception of Identifier
+                  and other resource reference fields. The fields that are in InitProvider
+                  are merged into ForProvider when the resource is created. The same
+                  fields are also added to the terraform ignore_changes hook, to avoid
+                  updating them after creation. This is useful for fields that are
+                  required on creation, but we do not desire to update them after
+                  creation, for example because of an external controller is managing
+                  them, like an autoscaler.
+                properties:
+                  elasticsearchConnection:
+                    description: '(Block List, Max: 1, Deprecated) Elasticsearch connection
+                      configuration block. This property will be removed in a future
+                      provider version. Configure the Elasticsearch connection via
+                      the provider configuration instead. (see below for nested schema)
+                      Elasticsearch connection configuration block. This property
+                      will be removed in a future provider version. Configure the
+                      Elasticsearch connection via the provider configuration instead.'
+                    items:
+                      properties:
+                        caData:
+                          description: encoded custom Certificate Authority certificate
+                            PEM-encoded custom Certificate Authority certificate
+                          type: string
+                        caFile:
+                          description: (String) Path to a custom Certificate Authority
+                            certificate Path to a custom Certificate Authority certificate
+                          type: string
+                        certData:
+                          description: (String) PEM encoded certificate for client
+                            auth PEM encoded certificate for client auth
+                          type: string
+                        certFile:
+                          description: (String) Path to a file containing the PEM
+                            encoded certificate for client auth Path to a file containing
+                            the PEM encoded certificate for client auth
+                          type: string
+                        insecure:
+                          description: (Boolean) Disable TLS certificate validation
+                            Disable TLS certificate validation
+                          type: boolean
+                        keyFile:
+                          description: (String) Path to a file containing the PEM
+                            encoded private key for client auth Path to a file containing
+                            the PEM encoded private key for client auth
+                          type: string
+                        username:
+                          description: (String) Username to use for API authentication
+                            to Elasticsearch. Username to use for API authentication
+                            to Elasticsearch.
+                          type: string
+                      type: object
+                    type: array
+                  name:
+                    description: (String) Name of the data stream to create. Name
+                      of the data stream to create.
+                    type: string
+                type: object
+              managementPolicies:
+                default:
+                - '*'
+                description: 'THIS IS AN ALPHA FIELD. Do not use it in production.
+                  It is not honored unless the relevant Crossplane feature flag is
+                  enabled, and may be changed or removed without notice. ManagementPolicies
+                  specify the array of actions Crossplane is allowed to take on the
+                  managed and external resources. This field is planned to replace
+                  the DeletionPolicy field in a future release. Currently, both could
+                  be set independently and non-default values would be honored if
+                  the feature flag is enabled. If both are custom, the DeletionPolicy
+                  field will be ignored. See the design doc for more information:
+                  https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223
+                  and this one: https://github.com/crossplane/crossplane/blob/444267e84783136daa93568b364a5f01228cacbe/design/one-pager-ignore-changes.md'
+                items:
+                  description: A ManagementAction represents an action that the Crossplane
+                    controllers can take on an external resource.
+                  enum:
+                  - Observe
+                  - Create
+                  - Update
+                  - Delete
+                  - LateInitialize
+                  - '*'
+                  type: string
+                type: array
+              providerConfigRef:
+                default:
+                  name: default
+                description: ProviderConfigReference specifies how the provider that
+                  will be used to create, observe, update, and delete this managed
+                  resource should be configured.
+                properties:
+                  name:
+                    description: Name of the referenced object.
+                    type: string
+                  policy:
+                    description: Policies for referencing.
+                    properties:
+                      resolution:
+                        default: Required
+                        description: Resolution specifies whether resolution of this
+                          reference is required. The default is 'Required', which
+                          means the reconcile will fail if the reference cannot be
+                          resolved. 'Optional' means this reference will be a no-op
+                          if it cannot be resolved.
+                        enum:
+                        - Required
+                        - Optional
+                        type: string
+                      resolve:
+                        description: Resolve specifies when this reference should
+                          be resolved. The default is 'IfNotPresent', which will attempt
+                          to resolve the reference only when the corresponding field
+                          is not present. Use 'Always' to resolve the reference on
+                          every reconcile.
+                        enum:
+                        - Always
+                        - IfNotPresent
+                        type: string
+                    type: object
+                required:
+                - name
+                type: object
+              providerRef:
+                description: 'ProviderReference specifies the provider that will be
+                  used to create, observe, update, and delete this managed resource.
+                  Deprecated: Please use ProviderConfigReference, i.e. `providerConfigRef`'
+                properties:
+                  name:
+                    description: Name of the referenced object.
+                    type: string
+                  policy:
+                    description: Policies for referencing.
+                    properties:
+                      resolution:
+                        default: Required
+                        description: Resolution specifies whether resolution of this
+                          reference is required. The default is 'Required', which
+                          means the reconcile will fail if the reference cannot be
+                          resolved. 'Optional' means this reference will be a no-op
+                          if it cannot be resolved.
+                        enum:
+                        - Required
+                        - Optional
+                        type: string
+                      resolve:
+                        description: Resolve specifies when this reference should
+                          be resolved. The default is 'IfNotPresent', which will attempt
+                          to resolve the reference only when the corresponding field
+                          is not present. Use 'Always' to resolve the reference on
+                          every reconcile.
+                        enum:
+                        - Always
+                        - IfNotPresent
+                        type: string
+                    type: object
+                required:
+                - name
+                type: object
+              publishConnectionDetailsTo:
+                description: PublishConnectionDetailsTo specifies the connection secret
+                  config which contains a name, metadata and a reference to secret
+                  store config to which any connection details for this managed resource
+                  should be written. Connection details frequently include the endpoint,
+                  username, and password required to connect to the managed resource.
+                properties:
+                  configRef:
+                    default:
+                      name: default
+                    description: SecretStoreConfigRef specifies which secret store
+                      config should be used for this ConnectionSecret.
+                    properties:
+                      name:
+                        description: Name of the referenced object.
+                        type: string
+                      policy:
+                        description: Policies for referencing.
+                        properties:
+                          resolution:
+                            default: Required
+                            description: Resolution specifies whether resolution of
+                              this reference is required. The default is 'Required',
+                              which means the reconcile will fail if the reference
+                              cannot be resolved. 'Optional' means this reference
+                              will be a no-op if it cannot be resolved.
+                            enum:
+                            - Required
+                            - Optional
+                            type: string
+                          resolve:
+                            description: Resolve specifies when this reference should
+                              be resolved. The default is 'IfNotPresent', which will
+                              attempt to resolve the reference only when the corresponding
+                              field is not present. Use 'Always' to resolve the reference
+                              on every reconcile.
+                            enum:
+                            - Always
+                            - IfNotPresent
+                            type: string
+                        type: object
+                    required:
+                    - name
+                    type: object
+                  metadata:
+                    description: Metadata is the metadata for connection secret.
+                    properties:
+                      annotations:
+                        additionalProperties:
+                          type: string
+                        description: Annotations are the annotations to be added to
+                          connection secret. - For Kubernetes secrets, this will be
+                          used as "metadata.annotations". - It is up to Secret Store
+                          implementation for others store types.
+                        type: object
+                      labels:
+                        additionalProperties:
+                          type: string
+                        description: Labels are the labels/tags to be added to connection
+                          secret. - For Kubernetes secrets, this will be used as "metadata.labels".
+                          - It is up to Secret Store implementation for others store
+                          types.
+                        type: object
+                      type:
+                        description: Type is the SecretType for the connection secret.
+                          - Only valid for Kubernetes Secret Stores.
+                        type: string
+                    type: object
+                  name:
+                    description: Name is the name of the connection secret.
+                    type: string
+                required:
+                - name
+                type: object
+              writeConnectionSecretToRef:
+                description: WriteConnectionSecretToReference specifies the namespace
+                  and name of a Secret to which any connection details for this managed
+                  resource should be written. Connection details frequently include
+                  the endpoint, username, and password required to connect to the
+                  managed resource. This field is planned to be replaced in a future
+                  release in favor of PublishConnectionDetailsTo. Currently, both
+                  could be set independently and connection details would be published
+                  to both without affecting each other.
+                properties:
+                  name:
+                    description: Name of the secret.
+                    type: string
+                  namespace:
+                    description: Namespace of the secret.
+                    type: string
+                required:
+                - name
+                - namespace
+                type: object
+            required:
+            - forProvider
+            type: object
+            x-kubernetes-validations:
+            - message: name is a required parameter
+              rule: '!(''*'' in self.managementPolicies || ''Create'' in self.managementPolicies
+                || ''Update'' in self.managementPolicies) || has(self.forProvider.name)
+                || has(self.initProvider.name)'
+          status:
+            description: DataStreamStatus defines the observed state of DataStream.
+            properties:
+              atProvider:
+                properties:
+                  elasticsearchConnection:
+                    description: '(Block List, Max: 1, Deprecated) Elasticsearch connection
+                      configuration block. This property will be removed in a future
+                      provider version. Configure the Elasticsearch connection via
+                      the provider configuration instead. (see below for nested schema)
+                      Elasticsearch connection configuration block. This property
+                      will be removed in a future provider version. Configure the
+                      Elasticsearch connection via the provider configuration instead.'
+                    items:
+                      properties:
+                        caData:
+                          description: encoded custom Certificate Authority certificate
+                            PEM-encoded custom Certificate Authority certificate
+                          type: string
+                        caFile:
+                          description: (String) Path to a custom Certificate Authority
+                            certificate Path to a custom Certificate Authority certificate
+                          type: string
+                        certData:
+                          description: (String) PEM encoded certificate for client
+                            auth PEM encoded certificate for client auth
+                          type: string
+                        certFile:
+                          description: (String) Path to a file containing the PEM
+                            encoded certificate for client auth Path to a file containing
+                            the PEM encoded certificate for client auth
+                          type: string
+                        insecure:
+                          description: (Boolean) Disable TLS certificate validation
+                            Disable TLS certificate validation
+                          type: boolean
+                        keyFile:
+                          description: (String) Path to a file containing the PEM
+                            encoded private key for client auth Path to a file containing
+                            the PEM encoded private key for client auth
+                          type: string
+                        username:
+                          description: (String) Username to use for API authentication
+                            to Elasticsearch. Username to use for API authentication
+                            to Elasticsearch.
+                          type: string
+                      type: object
+                    type: array
+                  generation:
+                    description: (Number) Current generation for the data stream.
+                      Current generation for the data stream.
+                    type: number
+                  hidden:
+                    description: (Boolean) If true, the data stream is hidden. If
+                      `true`, the data stream is hidden.
+                    type: boolean
+                  id:
+                    description: (String) Internal identifier of the resource
+                    type: string
+                  ilmPolicy:
+                    description: (String) Name of the current ILM lifecycle policy
+                      in the stream’s matching index template. Name of the current
+                      ILM lifecycle policy in the stream’s matching index template.
+                    type: string
+                  indices:
+                    description: (List of Object) Array of objects containing information
+                      about the data stream’s backing indices. The last item in this
+                      array contains information about the stream’s current write
+                      index. (see below for nested schema) Array of objects containing
+                      information about the data stream’s backing indices. The last
+                      item in this array contains information about the stream’s current
+                      write index.
+                    items:
+                      properties:
+                        indexName:
+                          description: (String)
+                          type: string
+                        indexUuid:
+                          description: (String)
+                          type: string
+                      type: object
+                    type: array
+                  metadata:
+                    description: (String) Custom metadata for the stream, copied from
+                      the _meta object of the stream’s matching index template. Custom
+                      metadata for the stream, copied from the _meta object of the
+                      stream’s matching index template.
+                    type: string
+                  name:
+                    description: (String) Name of the data stream to create. Name
+                      of the data stream to create.
+                    type: string
+                  replicated:
+                    description: cluster replication and the local cluster can not
+                      write into this data stream or change its mappings. If `true`,
+                      the data stream is created and managed by cross-cluster replication
+                      and the local cluster can not write into this data stream or
+                      change its mappings.
+                    type: boolean
+                  status:
+                    description: (String) Health status of the data stream. Health
+                      status of the data stream.
+                    type: string
+                  system:
+                    description: (Boolean) If true, the data stream is created and
+                      managed by an Elastic stack component and cannot be modified
+                      through normal user interaction. If `true`, the data stream
+                      is created and managed by an Elastic stack component and cannot
+                      be modified through normal user interaction.
+                    type: boolean
+                  template:
+                    description: (String) Name of the index template used to create
+                      the data stream’s backing indices. Name of the index template
+                      used to create the data stream’s backing indices.
+                    type: string
+                  timestampField:
+                    description: (String) Contains information about the data stream’s
+                      @timestamp field. Contains information about the data stream’s
+                      @timestamp field.
+                    type: string
+                type: object
+              conditions:
+                description: Conditions of the resource.
+                items:
+                  description: A Condition that may apply to a resource.
+                  properties:
+                    lastTransitionTime:
+                      description: LastTransitionTime is the last time this condition
+                        transitioned from one status to another.
+                      format: date-time
+                      type: string
+                    message:
+                      description: A Message containing details about this condition's
+                        last transition from one status to another, if any.
+                      type: string
+                    reason:
+                      description: A Reason for this condition's last transition from
+                        one status to another.
+                      type: string
+                    status:
+                      description: Status of this condition; is it currently True,
+                        False, or Unknown?
+                      type: string
+                    type:
+                      description: Type of this condition. At most one of each condition
+                        type may apply to a resource at any point in time.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

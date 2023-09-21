@@ -1,0 +1,23 @@
+apiVersion: elasticsearch.elasticstack.k8s.elastic.co/v1alpha1
+kind: IndexTemplate
+metadata:
+  annotations:
+    meta.upbound.io/example-id: elasticsearch/v1alpha1/indextemplate
+  labels:
+    testing.upbound.io/example-name: my_template
+  name: my-template
+spec:
+  forProvider:
+    indexPatterns:
+    - logstash*
+    - filebeat*
+    name: my_template
+    priority: 42
+    template:
+    - alias:
+      - name: my_template_test
+      - name: another_test
+      settings: |-
+        ${jsonencode({
+              number_of_shards = "3"
+            })}

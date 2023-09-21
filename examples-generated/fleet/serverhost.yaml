@@ -1,0 +1,14 @@
+apiVersion: fleet.elasticstack.k8s.elastic.co/v1alpha1
+kind: ServerHost
+metadata:
+  annotations:
+    meta.upbound.io/example-id: fleet/v1alpha1/serverhost
+  labels:
+    testing.upbound.io/example-name: test_host
+  name: test-host
+spec:
+  forProvider:
+    default: false
+    hosts:
+    - https://fleet-server:8220
+    name: Test Host

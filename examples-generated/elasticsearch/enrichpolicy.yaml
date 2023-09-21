@@ -1,0 +1,48 @@
+apiVersion: elasticsearch.elasticstack.k8s.elastic.co/v1alpha1
+kind: EnrichPolicy
+metadata:
+  annotations:
+    meta.upbound.io/example-id: elasticsearch/v1alpha1/enrichpolicy
+  labels:
+    testing.upbound.io/example-name: policy1
+  name: policy1
+spec:
+  forProvider:
+    enrichFields:
+    - first_name
+    - last_name
+    indices:
+    - ${elasticstack_elasticsearch_index.my_index.name}
+    matchField: email
+    name: policy1
+    policyType: match
+    query: |-
+      ${jsonencode({
+          bool = {
+            must     = [{ term = { b = "A" } }]
+            must_not = [{ term = { a = "B" } }]
+          }
+        })}
+
+---
+
+apiVersion: elasticsearch.elasticstack.k8s.elastic.co/v1alpha1
+kind: Index
+metadata:
+  annotations:
+    meta.upbound.io/example-id: elasticsearch/v1alpha1/enrichpolicy
+  labels:
+    testing.upbound.io/example-name: my_index
+  name: my-index
+spec:
+  forProvider:
+    deletionProtection: false
+    mappings: |-
+      ${jsonencode({
+          properties = {
+            email      = { type = "text" }
+            first_name = { type = "text" }
+            last_name  = { type = "text" }
+          }
+        })}
+    name: my-index

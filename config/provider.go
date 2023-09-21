@@ -9,9 +9,6 @@ import (
 	_ "embed"
 
 	ujconfig "github.com/upbound/upjet/pkg/config"
-
-	"github.com/elastic/provider-elasticstack/config/kibana_action_connector"
-	"github.com/elastic/provider-elasticstack/config/kibana_alerting_rule"
 )
 
 const (
@@ -37,8 +34,118 @@ func GetProvider() *ujconfig.Provider {
 
 	for _, configure := range []func(provider *ujconfig.Provider){
 		// add custom config functions
-		kibana_action_connector.Configure,
-		kibana_alerting_rule.Configure,
+		func(p *ujconfig.Provider) {
+			p.AddResourceConfigurator("elasticstack_kibana_action_connector", func(r *ujconfig.Resource) {
+				r.ShortGroup = "kibana"
+
+				// Nark secrets as sensitive -- this should probably be changed in the elasticstack provider?
+				r.TerraformResource.Schema["secrets"].Sensitive = true
+
+				r.References["space_id"] = ujconfig.Reference{
+					Type:      "github.com/elastic/provider-elasticstack/apis/kibana/v1alpha1.Space",
+					Extractor: "github.com/upbound/upjet/pkg/resource.ExtractParamPath(\"space_id\",true)",
+				}
+			})
+			p.AddResourceConfigurator("elasticstack_kibana_alerting_rule", func(r *ujconfig.Resource) {
+				r.ShortGroup = "kibana"
+
+				r.References["actions.id"] = ujconfig.Reference{
+					Type:      "github.com/elastic/provider-elasticstack/apis/kibana/v1alpha1.ActionConnector",
+					Extractor: "github.com/upbound/upjet/pkg/resource.ExtractParamPath(\"connector_id\",true)",
+				}
+				r.References["space_id"] = ujconfig.Reference{
+					Type:      "github.com/elastic/provider-elasticstack/apis/kibana/v1alpha1.Space",
+					Extractor: "github.com/upbound/upjet/pkg/resource.ExtractParamPath(\"space_id\",true)",
+				}
+			})
+			p.AddResourceConfigurator("elasticstack_kibana_slo", func(r *ujconfig.Resource) {
+				r.ShortGroup = "kibana"
+
+				r.References["space_id"] = ujconfig.Reference{
+					Type:      "github.com/elastic/provider-elasticstack/apis/kibana/v1alpha1.Space",
+					Extractor: "github.com/upbound/upjet/pkg/resource.ExtractParamPath(\"space_id\",true)",
+				}
+			})
+			p.AddResourceConfigurator("elasticstack_kibana_space", func(r *ujconfig.Resource) {
+				r.ShortGroup = "kibana"
+
+				r.References["space_id"] = ujconfig.Reference{
+					Type:      "github.com/elastic/provider-elasticstack/apis/kibana/v1alpha1.Space",
+					Extractor: "github.com/upbound/upjet/pkg/resource.ExtractParamPath(\"space_id\",true)",
+				}
+			})
+		},
+		func(p *ujconfig.Provider) {
+			p.AddResourceConfigurator("elasticstack_elasticsearch_cluster_settings", func(r *ujconfig.Resource) {
+				r.ShortGroup = "elasticsearch"
+			})
+			p.AddResourceConfigurator("elasticstack_elasticsearch_component_template", func(r *ujconfig.Resource) {
+				r.ShortGroup = "elasticsearch"
+			})
+			p.AddResourceConfigurator("elasticstack_elasticsearch_data_stream", func(r *ujconfig.Resource) {
+				r.ShortGroup = "elasticsearch"
+			})
+			p.AddResourceConfigurator("elasticstack_elasticsearch_enrich_policy", func(r *ujconfig.Resource) {
+				r.ShortGroup = "elasticsearch"
+			})
+			p.AddResourceConfigurator("elasticstack_elasticsearch_index", func(r *ujconfig.Resource) {
+				r.ShortGroup = "elasticsearch"
+			})
+			p.AddResourceConfigurator("elasticstack_elasticsearch_index_lifecycle", func(r *ujconfig.Resource) {
+				r.ShortGroup = "elasticsearch"
+			})
+			p.AddResourceConfigurator("elasticstack_elasticsearch_index_template", func(r *ujconfig.Resource) {
+				r.ShortGroup = "elasticsearch"
+			})
+			p.AddResourceConfigurator("elasticstack_elasticsearch_ingest_pipeline", func(r *ujconfig.Resource) {
+				r.ShortGroup = "elasticsearch"
+			})
+			p.AddResourceConfigurator("elasticstack_elasticsearch_logstash_pipeline", func(r *ujconfig.Resource) {
+				r.ShortGroup = "elasticsearch"
+			})
+			p.AddResourceConfigurator("elasticstack_elasticsearch_script", func(r *ujconfig.Resource) {
+				r.ShortGroup = "elasticsearch"
+			})
+			p.AddResourceConfigurator("elasticstack_elasticsearch_security_api_key", func(r *ujconfig.Resource) {
+				r.ShortGroup = "elasticsearch"
+			})
+			p.AddResourceConfigurator("elasticstack_elasticsearch_security_role", func(r *ujconfig.Resource) {
+				r.ShortGroup = "elasticsearch"
+			})
+			p.AddResourceConfigurator("elasticstack_elasticsearch_security_role_mapping", func(r *ujconfig.Resource) {
+				r.ShortGroup = "elasticsearch"
+			})
+			p.AddResourceConfigurator("elasticstack_elasticsearch_security_system_user", func(r *ujconfig.Resource) {
+				r.ShortGroup = "elasticsearch"
+			})
+			p.AddResourceConfigurator("elasticstack_elasticsearch_security_user", func(r *ujconfig.Resource) {
+				r.ShortGroup = "elasticsearch"
+			})
+			p.AddResourceConfigurator("elasticstack_elasticsearch_snapshot_lifecycle", func(r *ujconfig.Resource) {
+				r.ShortGroup = "elasticsearch"
+			})
+			p.AddResourceConfigurator("elasticstack_elasticsearch_snapshot_repository", func(r *ujconfig.Resource) {
+				r.ShortGroup = "elasticsearch"
+			})
+			p.AddResourceConfigurator("elasticstack_elasticsearch_transform", func(r *ujconfig.Resource) {
+				r.ShortGroup = "elasticsearch"
+			})
+			p.AddResourceConfigurator("elasticstack_elasticsearch_watch", func(r *ujconfig.Resource) {
+				r.ShortGroup = "elasticsearch"
+			})
+
+		},
+		func(p *ujconfig.Provider) {
+			p.AddResourceConfigurator("elasticstack_fleet_agent_policy", func(r *ujconfig.Resource) {
+				r.ShortGroup = "fleet"
+			})
+			p.AddResourceConfigurator("elasticstack_fleet_output", func(r *ujconfig.Resource) {
+				r.ShortGroup = "fleet"
+			})
+			p.AddResourceConfigurator("elasticstack_fleet_server_host", func(r *ujconfig.Resource) {
+				r.ShortGroup = "fleet"
+			})
+		},
 	} {
 		configure(pc)
 	}

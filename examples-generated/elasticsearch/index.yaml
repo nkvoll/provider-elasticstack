@@ -1,0 +1,35 @@
+apiVersion: elasticsearch.elasticstack.k8s.elastic.co/v1alpha1
+kind: Index
+metadata:
+  annotations:
+    meta.upbound.io/example-id: elasticsearch/v1alpha1/index
+  labels:
+    testing.upbound.io/example-name: my_index
+  name: my-index
+spec:
+  forProvider:
+    alias:
+    - name: my_alias_1
+    - filter: |-
+        ${jsonencode({
+              term = { "user.id" = "developer" }
+            })}
+      name: my_alias_2
+    mappings: |-
+      ${jsonencode({
+          properties = {
+            field1 = { type = "keyword" }
+            field2 = { type = "text" }
+            field3 = {
+              properties = {
+                inner_field1 = { type = "text", index = false }
+                inner_field2 = { type = "integer", index = false }
+              }
+            }
+          }
+        })}
+    name: my-index
+    numberOfReplicas: 2
+    numberOfShards: 1
+    searchIdleAfter: 20s
+    total_shards_per_node: 200

@@ -1,0 +1,47 @@
+apiVersion: elasticsearch.elasticstack.k8s.elastic.co/v1alpha1
+kind: Transform
+metadata:
+  annotations:
+    meta.upbound.io/example-id: elasticsearch/v1alpha1/transform
+  labels:
+    testing.upbound.io/example-name: transform_with_pivot
+  name: transform-with-pivot
+spec:
+  forProvider:
+    deferValidation: false
+    description: A meaningful description
+    destination:
+    - index: destination_index_for_transform
+    enabled: false
+    frequency: 5m
+    maxPageSearchSize: 2000
+    name: transform-pivot
+    pivot: |-
+      ${jsonencode({
+          "group_by" : {
+            "customer_id" : {
+              "terms" : {
+                "field" : "customer_id",
+                "missing_bucket" : true
+              }
+            }
+          },
+          "aggregations" : {
+            "max_price" : {
+              "max" : {
+                "field" : "taxful_total_price"
+              }
+            }
+          }
+        })}
+    retentionPolicy:
+    - time:
+      - field: order_date
+        maxAge: 30d
+    source:
+    - indices:
+      - names_or_patterns_for_input_index
+    sync:
+    - time:
+      - delay: 10s
+        field: order_date

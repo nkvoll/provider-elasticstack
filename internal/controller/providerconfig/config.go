@@ -1,5 +1,5 @@
 /*
-Copyright 2021 Upbound Inc.
+Copyright Elasticsearch B.V. All rights reserved.
 */
 
 package providerconfig

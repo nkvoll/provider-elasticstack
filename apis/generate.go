@@ -2,7 +2,7 @@
 // +build generate
 
 /*
-Copyright 2021 Upbound Inc.
+Copyright Elasticsearch B.V. All rights reserved.
 */
 
 // NOTE: See the below link for details on what is happening here.

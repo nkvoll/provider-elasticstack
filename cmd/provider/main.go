@@ -1,5 +1,5 @@
 /*
-Copyright 2021 Upbound Inc.
+Copyright Elasticsearch B.V. All rights reserved.
 */
 
 package main
@@ -25,6 +25,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 
 	"github.com/elastic/provider-elasticstack/apis"
 	"github.com/elastic/provider-elasticstack/apis/v1alpha1"
@@ -50,6 +51,9 @@ func main() {
 		namespace                  = app.Flag("namespace", "Namespace used to set as default scope in default secret store config.").Default("crossplane-system").Envar("POD_NAMESPACE").String()
 		enableExternalSecretStores = app.Flag("enable-external-secret-stores", "Enable support for ExternalSecretStores.").Default("false").Envar("ENABLE_EXTERNAL_SECRET_STORES").Bool()
 		enableManagementPolicies   = app.Flag("enable-management-policies", "Enable support for Management Policies.").Default("false").Envar("ENABLE_MANAGEMENT_POLICIES").Bool()
+
+		metricsBindAddress     = app.Flag("metrics-bind-address", "Bind address for metrics.").Default(":8080").String()
+		healthProbeBindAddress = app.Flag("health-probe-bind-address", "Bind address for health probe.").Default(":8081").String()
 	)
 
 	kingpin.MustParse(app.Parse(os.Args[1:]))
@@ -74,6 +78,10 @@ func main() {
 		Cache: cache.Options{
 			SyncPeriod: syncPeriod,
 		},
+		Metrics: metricsserver.Options{
+			BindAddress: *metricsBindAddress,
+		},
+		HealthProbeBindAddress:     *healthProbeBindAddress,
 		LeaderElectionResourceLock: resourcelock.LeasesResourceLock,
 		LeaseDuration:              func() *time.Duration { d := 60 * time.Second; return &d }(),
 		RenewDeadline:              func() *time.Duration { d := 50 * time.Second; return &d }(),

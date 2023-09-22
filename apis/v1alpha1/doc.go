@@ -1,5 +1,5 @@
 /*
-Copyright 2021 Upbound Inc.
+Copyright Elasticsearch B.V. All rights reserved.
 */
 
 // Package v1alpha1 contains the core resources of the elasticstack jet provider.

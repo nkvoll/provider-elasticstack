@@ -62,7 +62,7 @@ UPTEST_VERSION = v0.5.0
 # ====================================================================================
 # Setup Images
 
-REGISTRY_ORGS ?= xpkg.upbound.io/elastic
+REGISTRY_ORGS ?= xpkg.upbound.io/nkvoll
 IMAGES = $(PROJECT_NAME)
 -include build/makelib/imagelight.mk
 
@@ -72,7 +72,7 @@ IMAGES = $(PROJECT_NAME)
 XPKG_REG_ORGS ?= xpkg.upbound.io/elastic
 # NOTE(hasheddan): skip promoting on xpkg.upbound.io as channel tags are
 # inferred.
-XPKG_REG_ORGS_NO_PROMOTE ?= xpkg.upbound.io/elastic
+XPKG_REG_ORGS_NO_PROMOTE ?= xpkg.upbound.io/nkvoll
 XPKGS = $(PROJECT_NAME)
 -include build/makelib/xpkg.mk
 

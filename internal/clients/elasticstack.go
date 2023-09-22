@@ -7,7 +7,6 @@ package clients
 import (
 	"context"
 	"encoding/json"
-	"strings"
 
 	"github.com/crossplane/crossplane-runtime/pkg/resource"
 	"github.com/pkg/errors"
@@ -58,31 +57,13 @@ func TerraformSetupBuilder(version, providerSource, providerVersion string) terr
 		if err != nil {
 			return ps, errors.Wrap(err, errExtractCredentials)
 		}
-		creds := map[string]string{}
+		creds := map[string]any{}
 		if err := json.Unmarshal(data, &creds); err != nil {
 			return ps, errors.Wrap(err, errUnmarshalCredentials)
 		}
 
 		// Set credentials in Terraform provider configuration.
-		/*ps.Configuration = map[string]any{
-			"username": creds["username"],
-			"password": creds["password"],
-		}*/
-
-		ps.Configuration = map[string]any{
-			"elasticsearch": map[string]any{
-				"endpoints": strings.Split(creds["elasticsearch_endpoints"], ","),
-				"insecure":  creds["insecure"],
-				"username":  creds["username"],
-				"password":  creds["password"],
-			},
-			"kibana": map[string]any{
-				"endpoints": strings.Split(creds["kibana_endpoints"], ","),
-				"insecure":  creds["insecure"],
-				"username":  creds["username"],
-				"password":  creds["password"],
-			},
-		}
+		ps.Configuration = creds
 
 		return ps, nil
 	}

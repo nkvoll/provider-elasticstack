@@ -38,7 +38,7 @@ func GetProvider() *ujconfig.Provider {
 			p.AddResourceConfigurator("elasticstack_kibana_action_connector", func(r *ujconfig.Resource) {
 				r.ShortGroup = "kibana"
 
-				// Nark secrets as sensitive -- this should probably be changed in the elasticstack provider?
+				// Mark secrets as sensitive -- this should probably be changed in the elasticstack provider?
 				r.TerraformResource.Schema["secrets"].Sensitive = true
 
 				r.References["space_id"] = ujconfig.Reference{

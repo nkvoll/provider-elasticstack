@@ -78,7 +78,7 @@ resources:
                   "name": "my_template",
                   "template": [
                     {
-                      "aliases": [
+                      "alias": [
                         {
                           "name": "my_template_test"
                         }
@@ -1346,6 +1346,13 @@ resources:
                   "connector_type_id": ".slack",
                   "name": "slack",
                   "secrets": "${jsonencode({\n    webhookUrl = \"\u003cyour-webhookUrl\u003e\"\n  })}"
+                }
+            - name: slack-api-connector
+              manifest: |-
+                {
+                  "connector_type_id": ".slack_api",
+                  "name": "slack",
+                  "secrets": "${jsonencode({\n    token = \"\u003cyour-token\u003e\"\n  })}"
                 }
         argumentDocs:
             config: (String) The configuration for the connector. Configuration properties vary depending on the connector type.

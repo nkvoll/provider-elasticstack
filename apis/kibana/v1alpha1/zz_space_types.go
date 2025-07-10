@@ -25,6 +25,7 @@ type SpaceInitParameters struct {
 
 	// api-get.html).
 	// The list of disabled features for the space. To get a list of available feature IDs, use the Features API (https://www.elastic.co/guide/en/kibana/master/features-api-get.html).
+	// +listType=set
 	DisabledFeatures []*string `json:"disabledFeatures,omitempty" tf:"disabled_features,omitempty"`
 
 	// (String) The initials shown in the space avatar. By default, the initials are automatically generated from the space name. Initials must be 1 or 2 characters.
@@ -34,6 +35,20 @@ type SpaceInitParameters struct {
 	// (String) The display name for the space.
 	// The display name for the space.
 	Name *string `json:"name,omitempty" tf:"name,omitempty"`
+
+	// (String) The space ID that is part of the Kibana URL when inside the space.
+	// The space ID that is part of the Kibana URL when inside the space.
+	// +crossplane:generate:reference:type=github.com/elastic/provider-elasticstack/apis/kibana/v1alpha1.Space
+	// +crossplane:generate:reference:extractor=github.com/crossplane/upjet/pkg/resource.ExtractParamPath("space_id",true)
+	SpaceID *string `json:"spaceId,omitempty" tf:"space_id,omitempty"`
+
+	// Reference to a Space in kibana to populate spaceId.
+	// +kubebuilder:validation:Optional
+	SpaceIDRef *v1.Reference `json:"spaceIdRef,omitempty" tf:"-"`
+
+	// Selector for a Space in kibana to populate spaceId.
+	// +kubebuilder:validation:Optional
+	SpaceIDSelector *v1.Selector `json:"spaceIdSelector,omitempty" tf:"-"`
 }
 
 type SpaceObservation struct {
@@ -48,6 +63,7 @@ type SpaceObservation struct {
 
 	// api-get.html).
 	// The list of disabled features for the space. To get a list of available feature IDs, use the Features API (https://www.elastic.co/guide/en/kibana/master/features-api-get.html).
+	// +listType=set
 	DisabledFeatures []*string `json:"disabledFeatures,omitempty" tf:"disabled_features,omitempty"`
 
 	// (String) Internal identifier of the resource.
@@ -81,6 +97,7 @@ type SpaceParameters struct {
 	// api-get.html).
 	// The list of disabled features for the space. To get a list of available feature IDs, use the Features API (https://www.elastic.co/guide/en/kibana/master/features-api-get.html).
 	// +kubebuilder:validation:Optional
+	// +listType=set
 	DisabledFeatures []*string `json:"disabledFeatures,omitempty" tf:"disabled_features,omitempty"`
 
 	// (String) The initials shown in the space avatar. By default, the initials are automatically generated from the space name. Initials must be 1 or 2 characters.
@@ -96,7 +113,7 @@ type SpaceParameters struct {
 	// (String) The space ID that is part of the Kibana URL when inside the space.
 	// The space ID that is part of the Kibana URL when inside the space.
 	// +crossplane:generate:reference:type=github.com/elastic/provider-elasticstack/apis/kibana/v1alpha1.Space
-	// +crossplane:generate:reference:extractor=github.com/upbound/upjet/pkg/resource.ExtractParamPath("space_id",true)
+	// +crossplane:generate:reference:extractor=github.com/crossplane/upjet/pkg/resource.ExtractParamPath("space_id",true)
 	// +kubebuilder:validation:Optional
 	SpaceID *string `json:"spaceId,omitempty" tf:"space_id,omitempty"`
 
@@ -113,9 +130,8 @@ type SpaceParameters struct {
 type SpaceSpec struct {
 	v1.ResourceSpec `json:",inline"`
 	ForProvider     SpaceParameters `json:"forProvider"`
-	// THIS IS AN ALPHA FIELD. Do not use it in production. It is not honored
-	// unless the relevant Crossplane feature flag is enabled, and may be
-	// changed or removed without notice.
+	// THIS IS A BETA FIELD. It will be honored
+	// unless the Management Policies feature flag is disabled.
 	// InitProvider holds the same fields as ForProvider, with the exception
 	// of Identifier and other resource reference fields. The fields that are
 	// in InitProvider are merged into ForProvider when the resource is created.
@@ -134,18 +150,19 @@ type SpaceStatus struct {
 }
 
 // +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
+// +kubebuilder:storageversion
 
 // Space is the Schema for the Spaces API. Creates or updates a Kibana space.
-// +kubebuilder:printcolumn:name="READY",type="string",JSONPath=".status.conditions[?(@.type=='Ready')].status"
 // +kubebuilder:printcolumn:name="SYNCED",type="string",JSONPath=".status.conditions[?(@.type=='Synced')].status"
+// +kubebuilder:printcolumn:name="READY",type="string",JSONPath=".status.conditions[?(@.type=='Ready')].status"
 // +kubebuilder:printcolumn:name="EXTERNAL-NAME",type="string",JSONPath=".metadata.annotations.crossplane\\.io/external-name"
 // +kubebuilder:printcolumn:name="AGE",type="date",JSONPath=".metadata.creationTimestamp"
-// +kubebuilder:subresource:status
 // +kubebuilder:resource:scope=Cluster,categories={crossplane,managed,elasticstack}
 type Space struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
-	// +kubebuilder:validation:XValidation:rule="!('*' in self.managementPolicies || 'Create' in self.managementPolicies || 'Update' in self.managementPolicies) || has(self.forProvider.name) || has(self.initProvider.name)",message="name is a required parameter"
+	// +kubebuilder:validation:XValidation:rule="!('*' in self.managementPolicies || 'Create' in self.managementPolicies || 'Update' in self.managementPolicies) || has(self.forProvider.name) || (has(self.initProvider) && has(self.initProvider.name))",message="spec.forProvider.name is a required parameter"
 	Spec   SpaceSpec   `json:"spec"`
 	Status SpaceStatus `json:"status,omitempty"`
 }

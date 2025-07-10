@@ -30,6 +30,24 @@ type ActionConnectorInitParameters struct {
 	// (String) The name of the connector. While this name does not have to be unique, a distinctive name can help you identify a connector.
 	// The name of the connector. While this name does not have to be unique, a distinctive name can help you identify a connector.
 	Name *string `json:"name,omitempty" tf:"name,omitempty"`
+
+	// (String) The secrets configuration for the connector. Secrets configuration properties vary depending on the connector type.
+	// The secrets configuration for the connector. Secrets configuration properties vary depending on the connector type.
+	SecretsSecretRef *v1.SecretKeySelector `json:"secretsSecretRef,omitempty" tf:"-"`
+
+	// (String) An identifier for the space. If space_id is not provided, the default space is used.
+	// An identifier for the space. If space_id is not provided, the default space is used.
+	// +crossplane:generate:reference:type=github.com/elastic/provider-elasticstack/apis/kibana/v1alpha1.Space
+	// +crossplane:generate:reference:extractor=github.com/crossplane/upjet/pkg/resource.ExtractParamPath("space_id",true)
+	SpaceID *string `json:"spaceId,omitempty" tf:"space_id,omitempty"`
+
+	// Reference to a Space in kibana to populate spaceId.
+	// +kubebuilder:validation:Optional
+	SpaceIDRef *v1.Reference `json:"spaceIdRef,omitempty" tf:"-"`
+
+	// Selector for a Space in kibana to populate spaceId.
+	// +kubebuilder:validation:Optional
+	SpaceIDSelector *v1.Selector `json:"spaceIdSelector,omitempty" tf:"-"`
 }
 
 type ActionConnectorObservation struct {
@@ -100,7 +118,7 @@ type ActionConnectorParameters struct {
 	// (String) An identifier for the space. If space_id is not provided, the default space is used.
 	// An identifier for the space. If space_id is not provided, the default space is used.
 	// +crossplane:generate:reference:type=github.com/elastic/provider-elasticstack/apis/kibana/v1alpha1.Space
-	// +crossplane:generate:reference:extractor=github.com/upbound/upjet/pkg/resource.ExtractParamPath("space_id",true)
+	// +crossplane:generate:reference:extractor=github.com/crossplane/upjet/pkg/resource.ExtractParamPath("space_id",true)
 	// +kubebuilder:validation:Optional
 	SpaceID *string `json:"spaceId,omitempty" tf:"space_id,omitempty"`
 
@@ -117,9 +135,8 @@ type ActionConnectorParameters struct {
 type ActionConnectorSpec struct {
 	v1.ResourceSpec `json:",inline"`
 	ForProvider     ActionConnectorParameters `json:"forProvider"`
-	// THIS IS AN ALPHA FIELD. Do not use it in production. It is not honored
-	// unless the relevant Crossplane feature flag is enabled, and may be
-	// changed or removed without notice.
+	// THIS IS A BETA FIELD. It will be honored
+	// unless the Management Policies feature flag is disabled.
 	// InitProvider holds the same fields as ForProvider, with the exception
 	// of Identifier and other resource reference fields. The fields that are
 	// in InitProvider are merged into ForProvider when the resource is created.
@@ -138,19 +155,20 @@ type ActionConnectorStatus struct {
 }
 
 // +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
+// +kubebuilder:storageversion
 
 // ActionConnector is the Schema for the ActionConnectors API. Creates or updates a Kibana action connector. See https://www.elastic.co/guide/en/kibana/current/action-types.html
-// +kubebuilder:printcolumn:name="READY",type="string",JSONPath=".status.conditions[?(@.type=='Ready')].status"
 // +kubebuilder:printcolumn:name="SYNCED",type="string",JSONPath=".status.conditions[?(@.type=='Synced')].status"
+// +kubebuilder:printcolumn:name="READY",type="string",JSONPath=".status.conditions[?(@.type=='Ready')].status"
 // +kubebuilder:printcolumn:name="EXTERNAL-NAME",type="string",JSONPath=".metadata.annotations.crossplane\\.io/external-name"
 // +kubebuilder:printcolumn:name="AGE",type="date",JSONPath=".metadata.creationTimestamp"
-// +kubebuilder:subresource:status
 // +kubebuilder:resource:scope=Cluster,categories={crossplane,managed,elasticstack}
 type ActionConnector struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
-	// +kubebuilder:validation:XValidation:rule="!('*' in self.managementPolicies || 'Create' in self.managementPolicies || 'Update' in self.managementPolicies) || has(self.forProvider.connectorTypeId) || has(self.initProvider.connectorTypeId)",message="connectorTypeId is a required parameter"
-	// +kubebuilder:validation:XValidation:rule="!('*' in self.managementPolicies || 'Create' in self.managementPolicies || 'Update' in self.managementPolicies) || has(self.forProvider.name) || has(self.initProvider.name)",message="name is a required parameter"
+	// +kubebuilder:validation:XValidation:rule="!('*' in self.managementPolicies || 'Create' in self.managementPolicies || 'Update' in self.managementPolicies) || has(self.forProvider.connectorTypeId) || (has(self.initProvider) && has(self.initProvider.connectorTypeId))",message="spec.forProvider.connectorTypeId is a required parameter"
+	// +kubebuilder:validation:XValidation:rule="!('*' in self.managementPolicies || 'Create' in self.managementPolicies || 'Update' in self.managementPolicies) || has(self.forProvider.name) || (has(self.initProvider) && has(self.initProvider.name))",message="spec.forProvider.name is a required parameter"
 	Spec   ActionConnectorSpec   `json:"spec"`
 	Status ActionConnectorStatus `json:"status,omitempty"`
 }

@@ -11,12 +11,15 @@ import (
 
 	"github.com/crossplane/crossplane-runtime/pkg/connection"
 	"github.com/crossplane/crossplane-runtime/pkg/event"
+	xpfeature "github.com/crossplane/crossplane-runtime/pkg/feature"
 	"github.com/crossplane/crossplane-runtime/pkg/ratelimiter"
 	"github.com/crossplane/crossplane-runtime/pkg/reconciler/managed"
 	xpresource "github.com/crossplane/crossplane-runtime/pkg/resource"
-	tjcontroller "github.com/upbound/upjet/pkg/controller"
-	"github.com/upbound/upjet/pkg/controller/handler"
-	"github.com/upbound/upjet/pkg/terraform"
+	"github.com/crossplane/crossplane-runtime/pkg/statemetrics"
+	tjcontroller "github.com/crossplane/upjet/pkg/controller"
+	"github.com/crossplane/upjet/pkg/controller/handler"
+	"github.com/crossplane/upjet/pkg/terraform"
+	"github.com/pkg/errors"
 	ctrl "sigs.k8s.io/controller-runtime"
 
 	v1alpha1 "github.com/elastic/provider-elasticstack/apis/elasticsearch/v1alpha1"
@@ -45,9 +48,39 @@ func Setup(mgr ctrl.Manager, o tjcontroller.Options) error {
 		managed.WithConnectionPublishers(cps...),
 		managed.WithPollInterval(o.PollInterval),
 	}
-	if o.Features.Enabled(features.EnableAlphaManagementPolicies) {
+	if o.PollJitter != 0 {
+		opts = append(opts, managed.WithPollJitterHook(o.PollJitter))
+	}
+	if o.Features.Enabled(features.EnableBetaManagementPolicies) {
 		opts = append(opts, managed.WithManagementPolicies())
 	}
+	if o.MetricOptions != nil {
+		opts = append(opts, managed.WithMetricRecorder(o.MetricOptions.MRMetrics))
+	}
+
+	// register webhooks for the kind v1alpha1.Watch
+	// if they're enabled.
+	if o.StartWebhooks {
+		if err := ctrl.NewWebhookManagedBy(mgr).
+			For(&v1alpha1.Watch{}).
+			Complete(); err != nil {
+			return errors.Wrap(err, "cannot register webhook for the kind v1alpha1.Watch")
+		}
+	}
+
+	if o.MetricOptions != nil && o.MetricOptions.MRStateMetrics != nil {
+		stateMetricsRecorder := statemetrics.NewMRStateRecorder(
+			mgr.GetClient(), o.Logger, o.MetricOptions.MRStateMetrics, &v1alpha1.WatchList{}, o.MetricOptions.PollStateMetricInterval,
+		)
+		if err := mgr.Add(stateMetricsRecorder); err != nil {
+			return errors.Wrap(err, "cannot register MR state metrics recorder for kind v1alpha1.WatchList")
+		}
+	}
+
+	if o.Features.Enabled(xpfeature.EnableAlphaChangeLogs) {
+		opts = append(opts, managed.WithChangeLogger(o.ChangeLogOptions.ChangeLogger))
+	}
+
 	r := managed.NewReconciler(mgr, xpresource.ManagedKind(v1alpha1.Watch_GroupVersionKind), opts...)
 
 	return ctrl.NewControllerManagedBy(mgr).

@@ -15,6 +15,10 @@ import (
 
 type SecurityRoleMappingElasticsearchConnectionInitParameters struct {
 
+	// (String, Sensitive) API Key to use for authentication to Elasticsearch
+	// API Key to use for authentication to Elasticsearch
+	APIKeySecretRef *v1.SecretKeySelector `json:"apiKeySecretRef,omitempty" tf:"-"`
+
 	// encoded custom Certificate Authority certificate
 	// PEM-encoded custom Certificate Authority certificate
 	CAData *string `json:"caData,omitempty" tf:"ca_data,omitempty"`
@@ -31,13 +35,23 @@ type SecurityRoleMappingElasticsearchConnectionInitParameters struct {
 	// Path to a file containing the PEM encoded certificate for client auth
 	CertFile *string `json:"certFile,omitempty" tf:"cert_file,omitempty"`
 
+	Endpoints []*string `json:"endpointsSecretRef,omitempty" tf:"-"`
+
 	// (Boolean) Disable TLS certificate validation
 	// Disable TLS certificate validation
 	Insecure *bool `json:"insecure,omitempty" tf:"insecure,omitempty"`
 
+	// (String, Sensitive) PEM encoded private key for client auth
+	// PEM encoded private key for client auth
+	KeyDataSecretRef *v1.SecretKeySelector `json:"keyDataSecretRef,omitempty" tf:"-"`
+
 	// (String) Path to a file containing the PEM encoded private key for client auth
 	// Path to a file containing the PEM encoded private key for client auth
 	KeyFile *string `json:"keyFile,omitempty" tf:"key_file,omitempty"`
+
+	// (String, Sensitive) Password to use for API authentication to Elasticsearch.
+	// Password to use for API authentication to Elasticsearch.
+	PasswordSecretRef *v1.SecretKeySelector `json:"passwordSecretRef,omitempty" tf:"-"`
 
 	// (String) Username to use for API authentication to Elasticsearch.
 	// Username to use for API authentication to Elasticsearch.
@@ -155,6 +169,7 @@ type SecurityRoleMappingInitParameters struct {
 
 	// (Set of String) A list of role names that are granted to the users that match the role mapping rules.
 	// A list of role names that are granted to the users that match the role mapping rules.
+	// +listType=set
 	Roles []*string `json:"roles,omitempty" tf:"roles,omitempty"`
 
 	// (String) The rules that determine which users should be matched by the mapping. A rule is a logical condition that is expressed by using a JSON DSL.
@@ -189,6 +204,7 @@ type SecurityRoleMappingObservation struct {
 
 	// (Set of String) A list of role names that are granted to the users that match the role mapping rules.
 	// A list of role names that are granted to the users that match the role mapping rules.
+	// +listType=set
 	Roles []*string `json:"roles,omitempty" tf:"roles,omitempty"`
 
 	// (String) The rules that determine which users should be matched by the mapping. A rule is a logical condition that is expressed by using a JSON DSL.
@@ -226,6 +242,7 @@ type SecurityRoleMappingParameters struct {
 	// (Set of String) A list of role names that are granted to the users that match the role mapping rules.
 	// A list of role names that are granted to the users that match the role mapping rules.
 	// +kubebuilder:validation:Optional
+	// +listType=set
 	Roles []*string `json:"roles,omitempty" tf:"roles,omitempty"`
 
 	// (String) The rules that determine which users should be matched by the mapping. A rule is a logical condition that is expressed by using a JSON DSL.
@@ -238,9 +255,8 @@ type SecurityRoleMappingParameters struct {
 type SecurityRoleMappingSpec struct {
 	v1.ResourceSpec `json:",inline"`
 	ForProvider     SecurityRoleMappingParameters `json:"forProvider"`
-	// THIS IS AN ALPHA FIELD. Do not use it in production. It is not honored
-	// unless the relevant Crossplane feature flag is enabled, and may be
-	// changed or removed without notice.
+	// THIS IS A BETA FIELD. It will be honored
+	// unless the Management Policies feature flag is disabled.
 	// InitProvider holds the same fields as ForProvider, with the exception
 	// of Identifier and other resource reference fields. The fields that are
 	// in InitProvider are merged into ForProvider when the resource is created.
@@ -259,19 +275,20 @@ type SecurityRoleMappingStatus struct {
 }
 
 // +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
+// +kubebuilder:storageversion
 
 // SecurityRoleMapping is the Schema for the SecurityRoleMappings API. Manage role mappings. See, https://www.elastic.co/guide/en/elasticsearch/reference/current/security-api-put-role-mapping.html
-// +kubebuilder:printcolumn:name="READY",type="string",JSONPath=".status.conditions[?(@.type=='Ready')].status"
 // +kubebuilder:printcolumn:name="SYNCED",type="string",JSONPath=".status.conditions[?(@.type=='Synced')].status"
+// +kubebuilder:printcolumn:name="READY",type="string",JSONPath=".status.conditions[?(@.type=='Ready')].status"
 // +kubebuilder:printcolumn:name="EXTERNAL-NAME",type="string",JSONPath=".metadata.annotations.crossplane\\.io/external-name"
 // +kubebuilder:printcolumn:name="AGE",type="date",JSONPath=".metadata.creationTimestamp"
-// +kubebuilder:subresource:status
 // +kubebuilder:resource:scope=Cluster,categories={crossplane,managed,elasticstack}
 type SecurityRoleMapping struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
-	// +kubebuilder:validation:XValidation:rule="!('*' in self.managementPolicies || 'Create' in self.managementPolicies || 'Update' in self.managementPolicies) || has(self.forProvider.name) || has(self.initProvider.name)",message="name is a required parameter"
-	// +kubebuilder:validation:XValidation:rule="!('*' in self.managementPolicies || 'Create' in self.managementPolicies || 'Update' in self.managementPolicies) || has(self.forProvider.rules) || has(self.initProvider.rules)",message="rules is a required parameter"
+	// +kubebuilder:validation:XValidation:rule="!('*' in self.managementPolicies || 'Create' in self.managementPolicies || 'Update' in self.managementPolicies) || has(self.forProvider.name) || (has(self.initProvider) && has(self.initProvider.name))",message="spec.forProvider.name is a required parameter"
+	// +kubebuilder:validation:XValidation:rule="!('*' in self.managementPolicies || 'Create' in self.managementPolicies || 'Update' in self.managementPolicies) || has(self.forProvider.rules) || (has(self.initProvider) && has(self.initProvider.rules))",message="spec.forProvider.rules is a required parameter"
 	Spec   SecurityRoleMappingSpec   `json:"spec"`
 	Status SecurityRoleMappingStatus `json:"status,omitempty"`
 }

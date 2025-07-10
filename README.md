@@ -1,7 +1,7 @@
 # Provider ElasticStack
 
 `provider-elasticstack` is a [Crossplane](https://crossplane.io/) provider that
-is built using [Upjet](https://github.com/upbound/upjet) code
+is built using [Upjet](https://github.com/crossplane/upjet) code
 generation tools and exposes XRM-conformant managed resources for the
 ElasticStack API.
 

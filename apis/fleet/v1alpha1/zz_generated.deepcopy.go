@@ -372,6 +372,11 @@ func (in *OutputInitParameters) DeepCopyInto(out *OutputInitParameters) {
 		*out = new(string)
 		**out = **in
 	}
+	if in.ConfigYamlSecretRef != nil {
+		in, out := &in.ConfigYamlSecretRef, &out.ConfigYamlSecretRef
+		*out = new(v1.SecretKeySelector)
+		**out = **in
+	}
 	if in.DefaultIntegrations != nil {
 		in, out := &in.DefaultIntegrations, &out.DefaultIntegrations
 		*out = new(bool)

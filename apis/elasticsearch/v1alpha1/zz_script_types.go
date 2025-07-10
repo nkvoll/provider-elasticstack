@@ -15,6 +15,10 @@ import (
 
 type ScriptElasticsearchConnectionInitParameters struct {
 
+	// (String, Sensitive) API Key to use for authentication to Elasticsearch
+	// API Key to use for authentication to Elasticsearch
+	APIKeySecretRef *v1.SecretKeySelector `json:"apiKeySecretRef,omitempty" tf:"-"`
+
 	// encoded custom Certificate Authority certificate
 	// PEM-encoded custom Certificate Authority certificate
 	CAData *string `json:"caData,omitempty" tf:"ca_data,omitempty"`
@@ -31,13 +35,23 @@ type ScriptElasticsearchConnectionInitParameters struct {
 	// Path to a file containing the PEM encoded certificate for client auth
 	CertFile *string `json:"certFile,omitempty" tf:"cert_file,omitempty"`
 
+	Endpoints []*string `json:"endpointsSecretRef,omitempty" tf:"-"`
+
 	// (Boolean) Disable TLS certificate validation
 	// Disable TLS certificate validation
 	Insecure *bool `json:"insecure,omitempty" tf:"insecure,omitempty"`
 
+	// (String, Sensitive) PEM encoded private key for client auth
+	// PEM encoded private key for client auth
+	KeyDataSecretRef *v1.SecretKeySelector `json:"keyDataSecretRef,omitempty" tf:"-"`
+
 	// (String) Path to a file containing the PEM encoded private key for client auth
 	// Path to a file containing the PEM encoded private key for client auth
 	KeyFile *string `json:"keyFile,omitempty" tf:"key_file,omitempty"`
+
+	// (String, Sensitive) Password to use for API authentication to Elasticsearch.
+	// Password to use for API authentication to Elasticsearch.
+	PasswordSecretRef *v1.SecretKeySelector `json:"passwordSecretRef,omitempty" tf:"-"`
 
 	// (String) Username to use for API authentication to Elasticsearch.
 	// Username to use for API authentication to Elasticsearch.
@@ -225,9 +239,8 @@ type ScriptParameters struct {
 type ScriptSpec struct {
 	v1.ResourceSpec `json:",inline"`
 	ForProvider     ScriptParameters `json:"forProvider"`
-	// THIS IS AN ALPHA FIELD. Do not use it in production. It is not honored
-	// unless the relevant Crossplane feature flag is enabled, and may be
-	// changed or removed without notice.
+	// THIS IS A BETA FIELD. It will be honored
+	// unless the Management Policies feature flag is disabled.
 	// InitProvider holds the same fields as ForProvider, with the exception
 	// of Identifier and other resource reference fields. The fields that are
 	// in InitProvider are merged into ForProvider when the resource is created.
@@ -246,20 +259,21 @@ type ScriptStatus struct {
 }
 
 // +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
+// +kubebuilder:storageversion
 
 // Script is the Schema for the Scripts API. Creates or updates a stored script or search template.
-// +kubebuilder:printcolumn:name="READY",type="string",JSONPath=".status.conditions[?(@.type=='Ready')].status"
 // +kubebuilder:printcolumn:name="SYNCED",type="string",JSONPath=".status.conditions[?(@.type=='Synced')].status"
+// +kubebuilder:printcolumn:name="READY",type="string",JSONPath=".status.conditions[?(@.type=='Ready')].status"
 // +kubebuilder:printcolumn:name="EXTERNAL-NAME",type="string",JSONPath=".metadata.annotations.crossplane\\.io/external-name"
 // +kubebuilder:printcolumn:name="AGE",type="date",JSONPath=".metadata.creationTimestamp"
-// +kubebuilder:subresource:status
 // +kubebuilder:resource:scope=Cluster,categories={crossplane,managed,elasticstack}
 type Script struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
-	// +kubebuilder:validation:XValidation:rule="!('*' in self.managementPolicies || 'Create' in self.managementPolicies || 'Update' in self.managementPolicies) || has(self.forProvider.lang) || has(self.initProvider.lang)",message="lang is a required parameter"
-	// +kubebuilder:validation:XValidation:rule="!('*' in self.managementPolicies || 'Create' in self.managementPolicies || 'Update' in self.managementPolicies) || has(self.forProvider.scriptId) || has(self.initProvider.scriptId)",message="scriptId is a required parameter"
-	// +kubebuilder:validation:XValidation:rule="!('*' in self.managementPolicies || 'Create' in self.managementPolicies || 'Update' in self.managementPolicies) || has(self.forProvider.source) || has(self.initProvider.source)",message="source is a required parameter"
+	// +kubebuilder:validation:XValidation:rule="!('*' in self.managementPolicies || 'Create' in self.managementPolicies || 'Update' in self.managementPolicies) || has(self.forProvider.lang) || (has(self.initProvider) && has(self.initProvider.lang))",message="spec.forProvider.lang is a required parameter"
+	// +kubebuilder:validation:XValidation:rule="!('*' in self.managementPolicies || 'Create' in self.managementPolicies || 'Update' in self.managementPolicies) || has(self.forProvider.scriptId) || (has(self.initProvider) && has(self.initProvider.scriptId))",message="spec.forProvider.scriptId is a required parameter"
+	// +kubebuilder:validation:XValidation:rule="!('*' in self.managementPolicies || 'Create' in self.managementPolicies || 'Update' in self.managementPolicies) || has(self.forProvider.source) || (has(self.initProvider) && has(self.initProvider.source))",message="spec.forProvider.source is a required parameter"
 	Spec   ScriptSpec   `json:"spec"`
 	Status ScriptStatus `json:"status,omitempty"`
 }

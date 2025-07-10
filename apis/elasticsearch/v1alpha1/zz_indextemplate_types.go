@@ -50,6 +50,10 @@ type IndexTemplateDataStreamParameters struct {
 
 type IndexTemplateElasticsearchConnectionInitParameters struct {
 
+	// (String, Sensitive) API Key to use for authentication to Elasticsearch
+	// API Key to use for authentication to Elasticsearch
+	APIKeySecretRef *v1.SecretKeySelector `json:"apiKeySecretRef,omitempty" tf:"-"`
+
 	// encoded custom Certificate Authority certificate
 	// PEM-encoded custom Certificate Authority certificate
 	CAData *string `json:"caData,omitempty" tf:"ca_data,omitempty"`
@@ -66,13 +70,23 @@ type IndexTemplateElasticsearchConnectionInitParameters struct {
 	// Path to a file containing the PEM encoded certificate for client auth
 	CertFile *string `json:"certFile,omitempty" tf:"cert_file,omitempty"`
 
+	Endpoints []*string `json:"endpointsSecretRef,omitempty" tf:"-"`
+
 	// (Boolean) Disable TLS certificate validation
 	// Disable TLS certificate validation
 	Insecure *bool `json:"insecure,omitempty" tf:"insecure,omitempty"`
 
+	// (String, Sensitive) PEM encoded private key for client auth
+	// PEM encoded private key for client auth
+	KeyDataSecretRef *v1.SecretKeySelector `json:"keyDataSecretRef,omitempty" tf:"-"`
+
 	// (String) Path to a file containing the PEM encoded private key for client auth
 	// Path to a file containing the PEM encoded private key for client auth
 	KeyFile *string `json:"keyFile,omitempty" tf:"key_file,omitempty"`
+
+	// (String, Sensitive) Password to use for API authentication to Elasticsearch.
+	// Password to use for API authentication to Elasticsearch.
+	PasswordSecretRef *v1.SecretKeySelector `json:"passwordSecretRef,omitempty" tf:"-"`
 
 	// (String) Username to use for API authentication to Elasticsearch.
 	// Username to use for API authentication to Elasticsearch.
@@ -182,6 +196,7 @@ type IndexTemplateInitParameters struct {
 
 	// (Set of String) Array of wildcard (*) expressions used to match the names of data streams and indices during creation.
 	// Array of wildcard (*) expressions used to match the names of data streams and indices during creation.
+	// +listType=set
 	IndexPatterns []*string `json:"indexPatterns,omitempty" tf:"index_patterns,omitempty"`
 
 	// (String) Optional user metadata about the index template.
@@ -224,6 +239,7 @@ type IndexTemplateObservation struct {
 
 	// (Set of String) Array of wildcard (*) expressions used to match the names of data streams and indices during creation.
 	// Array of wildcard (*) expressions used to match the names of data streams and indices during creation.
+	// +listType=set
 	IndexPatterns []*string `json:"indexPatterns,omitempty" tf:"index_patterns,omitempty"`
 
 	// (String) Optional user metadata about the index template.
@@ -267,6 +283,7 @@ type IndexTemplateParameters struct {
 	// (Set of String) Array of wildcard (*) expressions used to match the names of data streams and indices during creation.
 	// Array of wildcard (*) expressions used to match the names of data streams and indices during creation.
 	// +kubebuilder:validation:Optional
+	// +listType=set
 	IndexPatterns []*string `json:"indexPatterns,omitempty" tf:"index_patterns,omitempty"`
 
 	// (String) Optional user metadata about the index template.
@@ -447,9 +464,8 @@ type TemplateAliasParameters struct {
 type IndexTemplateSpec struct {
 	v1.ResourceSpec `json:",inline"`
 	ForProvider     IndexTemplateParameters `json:"forProvider"`
-	// THIS IS AN ALPHA FIELD. Do not use it in production. It is not honored
-	// unless the relevant Crossplane feature flag is enabled, and may be
-	// changed or removed without notice.
+	// THIS IS A BETA FIELD. It will be honored
+	// unless the Management Policies feature flag is disabled.
 	// InitProvider holds the same fields as ForProvider, with the exception
 	// of Identifier and other resource reference fields. The fields that are
 	// in InitProvider are merged into ForProvider when the resource is created.
@@ -468,19 +484,20 @@ type IndexTemplateStatus struct {
 }
 
 // +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
+// +kubebuilder:storageversion
 
 // IndexTemplate is the Schema for the IndexTemplates API. Creates or updates an index template.
-// +kubebuilder:printcolumn:name="READY",type="string",JSONPath=".status.conditions[?(@.type=='Ready')].status"
 // +kubebuilder:printcolumn:name="SYNCED",type="string",JSONPath=".status.conditions[?(@.type=='Synced')].status"
+// +kubebuilder:printcolumn:name="READY",type="string",JSONPath=".status.conditions[?(@.type=='Ready')].status"
 // +kubebuilder:printcolumn:name="EXTERNAL-NAME",type="string",JSONPath=".metadata.annotations.crossplane\\.io/external-name"
 // +kubebuilder:printcolumn:name="AGE",type="date",JSONPath=".metadata.creationTimestamp"
-// +kubebuilder:subresource:status
 // +kubebuilder:resource:scope=Cluster,categories={crossplane,managed,elasticstack}
 type IndexTemplate struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
-	// +kubebuilder:validation:XValidation:rule="!('*' in self.managementPolicies || 'Create' in self.managementPolicies || 'Update' in self.managementPolicies) || has(self.forProvider.indexPatterns) || has(self.initProvider.indexPatterns)",message="indexPatterns is a required parameter"
-	// +kubebuilder:validation:XValidation:rule="!('*' in self.managementPolicies || 'Create' in self.managementPolicies || 'Update' in self.managementPolicies) || has(self.forProvider.name) || has(self.initProvider.name)",message="name is a required parameter"
+	// +kubebuilder:validation:XValidation:rule="!('*' in self.managementPolicies || 'Create' in self.managementPolicies || 'Update' in self.managementPolicies) || has(self.forProvider.indexPatterns) || (has(self.initProvider) && has(self.initProvider.indexPatterns))",message="spec.forProvider.indexPatterns is a required parameter"
+	// +kubebuilder:validation:XValidation:rule="!('*' in self.managementPolicies || 'Create' in self.managementPolicies || 'Update' in self.managementPolicies) || has(self.forProvider.name) || (has(self.initProvider) && has(self.initProvider.name))",message="spec.forProvider.name is a required parameter"
 	Spec   IndexTemplateSpec   `json:"spec"`
 	Status IndexTemplateStatus `json:"status,omitempty"`
 }

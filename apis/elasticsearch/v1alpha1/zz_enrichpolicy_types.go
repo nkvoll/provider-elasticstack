@@ -15,6 +15,10 @@ import (
 
 type EnrichPolicyElasticsearchConnectionInitParameters struct {
 
+	// (String, Sensitive) API Key to use for authentication to Elasticsearch
+	// API Key to use for authentication to Elasticsearch
+	APIKeySecretRef *v1.SecretKeySelector `json:"apiKeySecretRef,omitempty" tf:"-"`
+
 	// encoded custom Certificate Authority certificate
 	// PEM-encoded custom Certificate Authority certificate
 	CAData *string `json:"caData,omitempty" tf:"ca_data,omitempty"`
@@ -31,13 +35,23 @@ type EnrichPolicyElasticsearchConnectionInitParameters struct {
 	// Path to a file containing the PEM encoded certificate for client auth
 	CertFile *string `json:"certFile,omitempty" tf:"cert_file,omitempty"`
 
+	Endpoints []*string `json:"endpointsSecretRef,omitempty" tf:"-"`
+
 	// (Boolean) Disable TLS certificate validation
 	// Disable TLS certificate validation
 	Insecure *bool `json:"insecure,omitempty" tf:"insecure,omitempty"`
 
+	// (String, Sensitive) PEM encoded private key for client auth
+	// PEM encoded private key for client auth
+	KeyDataSecretRef *v1.SecretKeySelector `json:"keyDataSecretRef,omitempty" tf:"-"`
+
 	// (String) Path to a file containing the PEM encoded private key for client auth
 	// Path to a file containing the PEM encoded private key for client auth
 	KeyFile *string `json:"keyFile,omitempty" tf:"key_file,omitempty"`
+
+	// (String, Sensitive) Password to use for API authentication to Elasticsearch.
+	// Password to use for API authentication to Elasticsearch.
+	PasswordSecretRef *v1.SecretKeySelector `json:"passwordSecretRef,omitempty" tf:"-"`
 
 	// (String) Username to use for API authentication to Elasticsearch.
 	// Username to use for API authentication to Elasticsearch.
@@ -139,6 +153,7 @@ type EnrichPolicyInitParameters struct {
 
 	// (Set of String) Fields to add to matching incoming documents. These fields must be present in the source indices.
 	// Fields to add to matching incoming documents. These fields must be present in the source indices.
+	// +listType=set
 	EnrichFields []*string `json:"enrichFields,omitempty" tf:"enrich_fields,omitempty"`
 
 	// (Boolean) Whether to call the execute API function in order to create the enrich index.
@@ -147,6 +162,7 @@ type EnrichPolicyInitParameters struct {
 
 	// (Set of String) Array of one or more source indices used to create the enrich index.
 	// Array of one or more source indices used to create the enrich index.
+	// +listType=set
 	Indices []*string `json:"indices,omitempty" tf:"indices,omitempty"`
 
 	// (String) Field in source indices used to match incoming documents.
@@ -174,6 +190,7 @@ type EnrichPolicyObservation struct {
 
 	// (Set of String) Fields to add to matching incoming documents. These fields must be present in the source indices.
 	// Fields to add to matching incoming documents. These fields must be present in the source indices.
+	// +listType=set
 	EnrichFields []*string `json:"enrichFields,omitempty" tf:"enrich_fields,omitempty"`
 
 	// (Boolean) Whether to call the execute API function in order to create the enrich index.
@@ -185,6 +202,7 @@ type EnrichPolicyObservation struct {
 
 	// (Set of String) Array of one or more source indices used to create the enrich index.
 	// Array of one or more source indices used to create the enrich index.
+	// +listType=set
 	Indices []*string `json:"indices,omitempty" tf:"indices,omitempty"`
 
 	// (String) Field in source indices used to match incoming documents.
@@ -214,6 +232,7 @@ type EnrichPolicyParameters struct {
 	// (Set of String) Fields to add to matching incoming documents. These fields must be present in the source indices.
 	// Fields to add to matching incoming documents. These fields must be present in the source indices.
 	// +kubebuilder:validation:Optional
+	// +listType=set
 	EnrichFields []*string `json:"enrichFields,omitempty" tf:"enrich_fields,omitempty"`
 
 	// (Boolean) Whether to call the execute API function in order to create the enrich index.
@@ -224,6 +243,7 @@ type EnrichPolicyParameters struct {
 	// (Set of String) Array of one or more source indices used to create the enrich index.
 	// Array of one or more source indices used to create the enrich index.
 	// +kubebuilder:validation:Optional
+	// +listType=set
 	Indices []*string `json:"indices,omitempty" tf:"indices,omitempty"`
 
 	// (String) Field in source indices used to match incoming documents.
@@ -251,9 +271,8 @@ type EnrichPolicyParameters struct {
 type EnrichPolicySpec struct {
 	v1.ResourceSpec `json:",inline"`
 	ForProvider     EnrichPolicyParameters `json:"forProvider"`
-	// THIS IS AN ALPHA FIELD. Do not use it in production. It is not honored
-	// unless the relevant Crossplane feature flag is enabled, and may be
-	// changed or removed without notice.
+	// THIS IS A BETA FIELD. It will be honored
+	// unless the Management Policies feature flag is disabled.
 	// InitProvider holds the same fields as ForProvider, with the exception
 	// of Identifier and other resource reference fields. The fields that are
 	// in InitProvider are merged into ForProvider when the resource is created.
@@ -272,22 +291,23 @@ type EnrichPolicyStatus struct {
 }
 
 // +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
+// +kubebuilder:storageversion
 
 // EnrichPolicy is the Schema for the EnrichPolicys API. Managing Elasticsearch enrich policies, see: https://www.elastic.co/guide/en/elasticsearch/reference/current/enrich-apis.html
-// +kubebuilder:printcolumn:name="READY",type="string",JSONPath=".status.conditions[?(@.type=='Ready')].status"
 // +kubebuilder:printcolumn:name="SYNCED",type="string",JSONPath=".status.conditions[?(@.type=='Synced')].status"
+// +kubebuilder:printcolumn:name="READY",type="string",JSONPath=".status.conditions[?(@.type=='Ready')].status"
 // +kubebuilder:printcolumn:name="EXTERNAL-NAME",type="string",JSONPath=".metadata.annotations.crossplane\\.io/external-name"
 // +kubebuilder:printcolumn:name="AGE",type="date",JSONPath=".metadata.creationTimestamp"
-// +kubebuilder:subresource:status
 // +kubebuilder:resource:scope=Cluster,categories={crossplane,managed,elasticstack}
 type EnrichPolicy struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
-	// +kubebuilder:validation:XValidation:rule="!('*' in self.managementPolicies || 'Create' in self.managementPolicies || 'Update' in self.managementPolicies) || has(self.forProvider.enrichFields) || has(self.initProvider.enrichFields)",message="enrichFields is a required parameter"
-	// +kubebuilder:validation:XValidation:rule="!('*' in self.managementPolicies || 'Create' in self.managementPolicies || 'Update' in self.managementPolicies) || has(self.forProvider.indices) || has(self.initProvider.indices)",message="indices is a required parameter"
-	// +kubebuilder:validation:XValidation:rule="!('*' in self.managementPolicies || 'Create' in self.managementPolicies || 'Update' in self.managementPolicies) || has(self.forProvider.matchField) || has(self.initProvider.matchField)",message="matchField is a required parameter"
-	// +kubebuilder:validation:XValidation:rule="!('*' in self.managementPolicies || 'Create' in self.managementPolicies || 'Update' in self.managementPolicies) || has(self.forProvider.name) || has(self.initProvider.name)",message="name is a required parameter"
-	// +kubebuilder:validation:XValidation:rule="!('*' in self.managementPolicies || 'Create' in self.managementPolicies || 'Update' in self.managementPolicies) || has(self.forProvider.policyType) || has(self.initProvider.policyType)",message="policyType is a required parameter"
+	// +kubebuilder:validation:XValidation:rule="!('*' in self.managementPolicies || 'Create' in self.managementPolicies || 'Update' in self.managementPolicies) || has(self.forProvider.enrichFields) || (has(self.initProvider) && has(self.initProvider.enrichFields))",message="spec.forProvider.enrichFields is a required parameter"
+	// +kubebuilder:validation:XValidation:rule="!('*' in self.managementPolicies || 'Create' in self.managementPolicies || 'Update' in self.managementPolicies) || has(self.forProvider.indices) || (has(self.initProvider) && has(self.initProvider.indices))",message="spec.forProvider.indices is a required parameter"
+	// +kubebuilder:validation:XValidation:rule="!('*' in self.managementPolicies || 'Create' in self.managementPolicies || 'Update' in self.managementPolicies) || has(self.forProvider.matchField) || (has(self.initProvider) && has(self.initProvider.matchField))",message="spec.forProvider.matchField is a required parameter"
+	// +kubebuilder:validation:XValidation:rule="!('*' in self.managementPolicies || 'Create' in self.managementPolicies || 'Update' in self.managementPolicies) || has(self.forProvider.name) || (has(self.initProvider) && has(self.initProvider.name))",message="spec.forProvider.name is a required parameter"
+	// +kubebuilder:validation:XValidation:rule="!('*' in self.managementPolicies || 'Create' in self.managementPolicies || 'Update' in self.managementPolicies) || has(self.forProvider.policyType) || (has(self.initProvider) && has(self.initProvider.policyType))",message="spec.forProvider.policyType is a required parameter"
 	Spec   EnrichPolicySpec   `json:"spec"`
 	Status EnrichPolicyStatus `json:"status,omitempty"`
 }

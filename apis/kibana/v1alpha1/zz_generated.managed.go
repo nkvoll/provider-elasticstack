@@ -27,14 +27,6 @@ func (mg *ActionConnector) GetProviderConfigReference() *xpv1.Reference {
 	return mg.Spec.ProviderConfigReference
 }
 
-/*
-GetProviderReference of this ActionConnector.
-Deprecated: Use GetProviderConfigReference.
-*/
-func (mg *ActionConnector) GetProviderReference() *xpv1.Reference {
-	return mg.Spec.ProviderReference
-}
-
 // GetPublishConnectionDetailsTo of this ActionConnector.
 func (mg *ActionConnector) GetPublishConnectionDetailsTo() *xpv1.PublishConnectionDetailsTo {
 	return mg.Spec.PublishConnectionDetailsTo
@@ -63,14 +55,6 @@ func (mg *ActionConnector) SetManagementPolicies(r xpv1.ManagementPolicies) {
 // SetProviderConfigReference of this ActionConnector.
 func (mg *ActionConnector) SetProviderConfigReference(r *xpv1.Reference) {
 	mg.Spec.ProviderConfigReference = r
-}
-
-/*
-SetProviderReference of this ActionConnector.
-Deprecated: Use SetProviderConfigReference.
-*/
-func (mg *ActionConnector) SetProviderReference(r *xpv1.Reference) {
-	mg.Spec.ProviderReference = r
 }
 
 // SetPublishConnectionDetailsTo of this ActionConnector.
@@ -103,14 +87,6 @@ func (mg *AlertingRule) GetProviderConfigReference() *xpv1.Reference {
 	return mg.Spec.ProviderConfigReference
 }
 
-/*
-GetProviderReference of this AlertingRule.
-Deprecated: Use GetProviderConfigReference.
-*/
-func (mg *AlertingRule) GetProviderReference() *xpv1.Reference {
-	return mg.Spec.ProviderReference
-}
-
 // GetPublishConnectionDetailsTo of this AlertingRule.
 func (mg *AlertingRule) GetPublishConnectionDetailsTo() *xpv1.PublishConnectionDetailsTo {
 	return mg.Spec.PublishConnectionDetailsTo
@@ -139,14 +115,6 @@ func (mg *AlertingRule) SetManagementPolicies(r xpv1.ManagementPolicies) {
 // SetProviderConfigReference of this AlertingRule.
 func (mg *AlertingRule) SetProviderConfigReference(r *xpv1.Reference) {
 	mg.Spec.ProviderConfigReference = r
-}
-
-/*
-SetProviderReference of this AlertingRule.
-Deprecated: Use SetProviderConfigReference.
-*/
-func (mg *AlertingRule) SetProviderReference(r *xpv1.Reference) {
-	mg.Spec.ProviderReference = r
 }
 
 // SetPublishConnectionDetailsTo of this AlertingRule.
@@ -179,14 +147,6 @@ func (mg *SLO) GetProviderConfigReference() *xpv1.Reference {
 	return mg.Spec.ProviderConfigReference
 }
 
-/*
-GetProviderReference of this SLO.
-Deprecated: Use GetProviderConfigReference.
-*/
-func (mg *SLO) GetProviderReference() *xpv1.Reference {
-	return mg.Spec.ProviderReference
-}
-
 // GetPublishConnectionDetailsTo of this SLO.
 func (mg *SLO) GetPublishConnectionDetailsTo() *xpv1.PublishConnectionDetailsTo {
 	return mg.Spec.PublishConnectionDetailsTo
@@ -215,14 +175,6 @@ func (mg *SLO) SetManagementPolicies(r xpv1.ManagementPolicies) {
 // SetProviderConfigReference of this SLO.
 func (mg *SLO) SetProviderConfigReference(r *xpv1.Reference) {
 	mg.Spec.ProviderConfigReference = r
-}
-
-/*
-SetProviderReference of this SLO.
-Deprecated: Use SetProviderConfigReference.
-*/
-func (mg *SLO) SetProviderReference(r *xpv1.Reference) {
-	mg.Spec.ProviderReference = r
 }
 
 // SetPublishConnectionDetailsTo of this SLO.
@@ -255,14 +207,6 @@ func (mg *Space) GetProviderConfigReference() *xpv1.Reference {
 	return mg.Spec.ProviderConfigReference
 }
 
-/*
-GetProviderReference of this Space.
-Deprecated: Use GetProviderConfigReference.
-*/
-func (mg *Space) GetProviderReference() *xpv1.Reference {
-	return mg.Spec.ProviderReference
-}
-
 // GetPublishConnectionDetailsTo of this Space.
 func (mg *Space) GetPublishConnectionDetailsTo() *xpv1.PublishConnectionDetailsTo {
 	return mg.Spec.PublishConnectionDetailsTo
@@ -291,14 +235,6 @@ func (mg *Space) SetManagementPolicies(r xpv1.ManagementPolicies) {
 // SetProviderConfigReference of this Space.
 func (mg *Space) SetProviderConfigReference(r *xpv1.Reference) {
 	mg.Spec.ProviderConfigReference = r
-}
-
-/*
-SetProviderReference of this Space.
-Deprecated: Use SetProviderConfigReference.
-*/
-func (mg *Space) SetProviderReference(r *xpv1.Reference) {
-	mg.Spec.ProviderReference = r
 }
 
 // SetPublishConnectionDetailsTo of this Space.

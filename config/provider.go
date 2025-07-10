@@ -8,7 +8,7 @@ import (
 	// Note(turkenh): we are importing this to embed provider schema document
 	_ "embed"
 
-	ujconfig "github.com/upbound/upjet/pkg/config"
+	ujconfig "github.com/crossplane/upjet/pkg/config"
 )
 
 const (
@@ -47,7 +47,7 @@ func GetProvider() *ujconfig.Provider {
 
 				r.References["space_id"] = ujconfig.Reference{
 					Type:      "github.com/elastic/provider-elasticstack/apis/kibana/v1alpha1.Space",
-					Extractor: "github.com/upbound/upjet/pkg/resource.ExtractParamPath(\"space_id\",true)",
+					Extractor: "github.com/crossplane/upjet/pkg/resource.ExtractParamPath(\"space_id\",true)",
 				}
 			})
 			p.AddResourceConfigurator("elasticstack_kibana_alerting_rule", func(r *ujconfig.Resource) {
@@ -55,11 +55,11 @@ func GetProvider() *ujconfig.Provider {
 
 				r.References["actions.id"] = ujconfig.Reference{
 					Type:      "github.com/elastic/provider-elasticstack/apis/kibana/v1alpha1.ActionConnector",
-					Extractor: "github.com/upbound/upjet/pkg/resource.ExtractParamPath(\"connector_id\",true)",
+					Extractor: "github.com/crossplane/upjet/pkg/resource.ExtractParamPath(\"connector_id\",true)",
 				}
 				r.References["space_id"] = ujconfig.Reference{
 					Type:      "github.com/elastic/provider-elasticstack/apis/kibana/v1alpha1.Space",
-					Extractor: "github.com/upbound/upjet/pkg/resource.ExtractParamPath(\"space_id\",true)",
+					Extractor: "github.com/crossplane/upjet/pkg/resource.ExtractParamPath(\"space_id\",true)",
 				}
 			})
 			p.AddResourceConfigurator("elasticstack_kibana_slo", func(r *ujconfig.Resource) {
@@ -67,7 +67,7 @@ func GetProvider() *ujconfig.Provider {
 
 				r.References["space_id"] = ujconfig.Reference{
 					Type:      "github.com/elastic/provider-elasticstack/apis/kibana/v1alpha1.Space",
-					Extractor: "github.com/upbound/upjet/pkg/resource.ExtractParamPath(\"space_id\",true)",
+					Extractor: "github.com/crossplane/upjet/pkg/resource.ExtractParamPath(\"space_id\",true)",
 				}
 			})
 			p.AddResourceConfigurator("elasticstack_kibana_space", func(r *ujconfig.Resource) {
@@ -75,7 +75,7 @@ func GetProvider() *ujconfig.Provider {
 
 				r.References["space_id"] = ujconfig.Reference{
 					Type:      "github.com/elastic/provider-elasticstack/apis/kibana/v1alpha1.Space",
-					Extractor: "github.com/upbound/upjet/pkg/resource.ExtractParamPath(\"space_id\",true)",
+					Extractor: "github.com/crossplane/upjet/pkg/resource.ExtractParamPath(\"space_id\",true)",
 				}
 			})
 		},

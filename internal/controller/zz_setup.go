@@ -1,5 +1,5 @@
 /*
-Copyright 2021 Upbound Inc.
+Copyright Elasticsearch B.V. All rights reserved.
 */
 
 package controller
@@ -7,7 +7,7 @@ package controller
 import (
 	ctrl "sigs.k8s.io/controller-runtime"
 
-	"github.com/upbound/upjet/pkg/controller"
+	"github.com/crossplane/upjet/pkg/controller"
 
 	clustersettings "github.com/elastic/provider-elasticstack/internal/controller/elasticsearch/clustersettings"
 	componenttemplate "github.com/elastic/provider-elasticstack/internal/controller/elasticsearch/componenttemplate"

@@ -3,7 +3,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.13.0
+    controller-gen.kubebuilder.io/version: v0.18.0
   name: snapshotlifecycles.elasticsearch.elasticstack.k8s.elastic.co
 spec:
   group: elasticsearch.elasticstack.k8s.elastic.co
@@ -19,11 +19,11 @@ spec:
   scope: Cluster
   versions:
   - additionalPrinterColumns:
-    - jsonPath: .status.conditions[?(@.type=='Ready')].status
-      name: READY
-      type: string
     - jsonPath: .status.conditions[?(@.type=='Synced')].status
       name: SYNCED
+      type: string
+    - jsonPath: .status.conditions[?(@.type=='Ready')].status
+      name: READY
       type: string
     - jsonPath: .metadata.annotations.crossplane\.io/external-name
       name: EXTERNAL-NAME
@@ -38,14 +38,19 @@ spec:
           Creates or updates a snapshot lifecycle policy.
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
             type: string
           metadata:
             type: object
@@ -54,13 +59,14 @@ spec:
             properties:
               deletionPolicy:
                 default: Delete
-                description: 'DeletionPolicy specifies what will happen to the underlying
-                  external when this managed resource is deleted - either "Delete"
-                  or "Orphan" the external resource. This field is planned to be deprecated
-                  in favor of the ManagementPolicies field in a future release. Currently,
-                  both could be set independently and non-default values would be
-                  honored if the feature flag is enabled. See the design doc for more
-                  information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223'
+                description: |-
+                  DeletionPolicy specifies what will happen to the underlying external
+                  when this managed resource is deleted - either "Delete" or "Orphan" the
+                  external resource.
+                  This field is planned to be deprecated in favor of the ManagementPolicies
+                  field in a future release. Currently, both could be set independently and
+                  non-default values would be honored if the feature flag is enabled.
+                  See the design doc for more information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223
                 enum:
                 - Orphan
                 - Delete
@@ -68,19 +74,15 @@ spec:
               forProvider:
                 properties:
                   elasticsearchConnection:
-                    description: '(Block List, Max: 1, Deprecated) Elasticsearch connection
-                      configuration block. This property will be removed in a future
-                      provider version. Configure the Elasticsearch connection via
-                      the provider configuration instead. (see below for nested schema)
-                      Elasticsearch connection configuration block. This property
-                      will be removed in a future provider version. Configure the
-                      Elasticsearch connection via the provider configuration instead.'
+                    description: |-
+                      (Block List, Max: 1, Deprecated) Elasticsearch connection configuration block. This property will be removed in a future provider version. Configure the Elasticsearch connection via the provider configuration instead. (see below for nested schema)
+                      Elasticsearch connection configuration block. This property will be removed in a future provider version. Configure the Elasticsearch connection via the provider configuration instead.
                     items:
                       properties:
                         apiKeySecretRef:
-                          description: (String, Sensitive) API Key to use for authentication
-                            to Elasticsearch API Key to use for authentication to
-                            Elasticsearch
+                          description: |-
+                            (String, Sensitive) API Key to use for authentication to Elasticsearch
+                            API Key to use for authentication to Elasticsearch
                           properties:
                             key:
                               description: The key to select.
@@ -97,21 +99,24 @@ spec:
                           - namespace
                           type: object
                         caData:
-                          description: encoded custom Certificate Authority certificate
+                          description: |-
+                            encoded custom Certificate Authority certificate
                             PEM-encoded custom Certificate Authority certificate
                           type: string
                         caFile:
-                          description: (String) Path to a custom Certificate Authority
-                            certificate Path to a custom Certificate Authority certificate
+                          description: |-
+                            (String) Path to a custom Certificate Authority certificate
+                            Path to a custom Certificate Authority certificate
                           type: string
                         certData:
-                          description: (String) PEM encoded certificate for client
-                            auth PEM encoded certificate for client auth
+                          description: |-
+                            (String) PEM encoded certificate for client auth
+                            PEM encoded certificate for client auth
                           type: string
                         certFile:
-                          description: (String) Path to a file containing the PEM
-                            encoded certificate for client auth Path to a file containing
-                            the PEM encoded certificate for client auth
+                          description: |-
+                            (String) Path to a file containing the PEM encoded certificate for client auth
+                            Path to a file containing the PEM encoded certificate for client auth
                           type: string
                         endpointsSecretRef:
                           items:
@@ -134,12 +139,14 @@ spec:
                             type: object
                           type: array
                         insecure:
-                          description: (Boolean) Disable TLS certificate validation
+                          description: |-
+                            (Boolean) Disable TLS certificate validation
                             Disable TLS certificate validation
                           type: boolean
                         keyDataSecretRef:
-                          description: (String, Sensitive) PEM encoded private key
-                            for client auth PEM encoded private key for client auth
+                          description: |-
+                            (String, Sensitive) PEM encoded private key for client auth
+                            PEM encoded private key for client auth
                           properties:
                             key:
                               description: The key to select.
@@ -156,14 +163,14 @@ spec:
                           - namespace
                           type: object
                         keyFile:
-                          description: (String) Path to a file containing the PEM
-                            encoded private key for client auth Path to a file containing
-                            the PEM encoded private key for client auth
+                          description: |-
+                            (String) Path to a file containing the PEM encoded private key for client auth
+                            Path to a file containing the PEM encoded private key for client auth
                           type: string
                         passwordSecretRef:
-                          description: (String, Sensitive) Password to use for API
-                            authentication to Elasticsearch. Password to use for API
-                            authentication to Elasticsearch.
+                          description: |-
+                            (String, Sensitive) Password to use for API authentication to Elasticsearch.
+                            Password to use for API authentication to Elasticsearch.
                           properties:
                             key:
                               description: The key to select.
@@ -180,241 +187,299 @@ spec:
                           - namespace
                           type: object
                         username:
-                          description: (String) Username to use for API authentication
-                            to Elasticsearch. Username to use for API authentication
-                            to Elasticsearch.
+                          description: |-
+                            (String) Username to use for API authentication to Elasticsearch.
+                            Username to use for API authentication to Elasticsearch.
                           type: string
                       type: object
                     type: array
                   expandWildcards:
-                    description: separated values, such as closed,hidden. Determines
-                      how wildcard patterns in the `indices` parameter match data
-                      streams and indices. Supports comma-separated values, such as
-                      `closed,hidden`.
+                    description: |-
+                      separated values, such as closed,hidden.
+                      Determines how wildcard patterns in the `indices` parameter match data streams and indices. Supports comma-separated values, such as `closed,hidden`.
                     type: string
                   expireAfter:
-                    description: (String) Time period after which a snapshot is considered
-                      expired and eligible for deletion. Time period after which a
-                      snapshot is considered expired and eligible for deletion.
+                    description: |-
+                      (String) Time period after which a snapshot is considered expired and eligible for deletion.
+                      Time period after which a snapshot is considered expired and eligible for deletion.
                     type: string
                   featureStates:
-                    description: (Set of String) Feature states to include in the
-                      snapshot. Feature states to include in the snapshot.
+                    description: |-
+                      (Set of String) Feature states to include in the snapshot.
+                      Feature states to include in the snapshot.
                     items:
                       type: string
                     type: array
+                    x-kubernetes-list-type: set
                   ignoreUnavailable:
-                    description: (Boolean) If false, the snapshot fails if any data
-                      stream or index in indices is missing or closed. If true, the
-                      snapshot ignores missing or closed data streams and indices.
-                      If `false`, the snapshot fails if any data stream or index in
-                      indices is missing or closed. If `true`, the snapshot ignores
-                      missing or closed data streams and indices.
+                    description: |-
+                      (Boolean) If false, the snapshot fails if any data stream or index in indices is missing or closed. If true, the snapshot ignores missing or closed data streams and indices.
+                      If `false`, the snapshot fails if any data stream or index in indices is missing or closed. If `true`, the snapshot ignores missing or closed data streams and indices.
                     type: boolean
                   includeGlobalState:
-                    description: (Boolean) If true, include the cluster state in the
-                      snapshot. If `true`, include the cluster state in the snapshot.
+                    description: |-
+                      (Boolean) If true, include the cluster state in the snapshot.
+                      If `true`, include the cluster state in the snapshot.
                     type: boolean
                   indices:
-                    description: separated list of data streams and indices to include
-                      in the snapshot. Comma-separated list of data streams and indices
-                      to include in the snapshot.
+                    description: |-
+                      separated list of data streams and indices to include in the snapshot.
+                      Comma-separated list of data streams and indices to include in the snapshot.
                     items:
                       type: string
                     type: array
                   maxCount:
-                    description: (Number) Maximum number of snapshots to retain, even
-                      if the snapshots have not yet expired. Maximum number of snapshots
-                      to retain, even if the snapshots have not yet expired.
+                    description: |-
+                      (Number) Maximum number of snapshots to retain, even if the snapshots have not yet expired.
+                      Maximum number of snapshots to retain, even if the snapshots have not yet expired.
                     type: number
                   metadata:
-                    description: (String) Attaches arbitrary metadata to the snapshot.
+                    description: |-
+                      (String) Attaches arbitrary metadata to the snapshot.
                       Attaches arbitrary metadata to the snapshot.
                     type: string
                   minCount:
-                    description: (Number) Minimum number of snapshots to retain, even
-                      if the snapshots have expired. Minimum number of snapshots to
-                      retain, even if the snapshots have expired.
+                    description: |-
+                      (Number) Minimum number of snapshots to retain, even if the snapshots have expired.
+                      Minimum number of snapshots to retain, even if the snapshots have expired.
                     type: number
                   name:
-                    description: (String) ID for the snapshot lifecycle policy you
-                      want to create or update. ID for the snapshot lifecycle policy
-                      you want to create or update.
+                    description: |-
+                      (String) ID for the snapshot lifecycle policy you want to create or update.
+                      ID for the snapshot lifecycle policy you want to create or update.
                     type: string
                   partial:
-                    description: (Boolean) If false, the entire snapshot will fail
-                      if one or more indices included in the snapshot do not have
-                      all primary shards available. If `false`, the entire snapshot
-                      will fail if one or more indices included in the snapshot do
-                      not have all primary shards available.
+                    description: |-
+                      (Boolean) If false, the entire snapshot will fail if one or more indices included in the snapshot do not have all primary shards available.
+                      If `false`, the entire snapshot will fail if one or more indices included in the snapshot do not have all primary shards available.
                     type: boolean
                   repository:
-                    description: (String) Repository used to store snapshots created
-                      by this policy. Repository used to store snapshots created by
-                      this policy.
+                    description: |-
+                      (String) Repository used to store snapshots created by this policy.
+                      Repository used to store snapshots created by this policy.
                     type: string
                   schedule:
-                    description: (String) Periodic or absolute schedule at which the
-                      policy creates snapshots. Periodic or absolute schedule at which
-                      the policy creates snapshots.
+                    description: |-
+                      (String) Periodic or absolute schedule at which the policy creates snapshots.
+                      Periodic or absolute schedule at which the policy creates snapshots.
                     type: string
                   snapshotName:
-                    description: (String) Name automatically assigned to each snapshot
-                      created by the policy. Name automatically assigned to each snapshot
-                      created by the policy.
+                    description: |-
+                      (String) Name automatically assigned to each snapshot created by the policy.
+                      Name automatically assigned to each snapshot created by the policy.
                     type: string
                 type: object
               initProvider:
-                description: THIS IS AN ALPHA FIELD. Do not use it in production.
-                  It is not honored unless the relevant Crossplane feature flag is
-                  enabled, and may be changed or removed without notice. InitProvider
-                  holds the same fields as ForProvider, with the exception of Identifier
-                  and other resource reference fields. The fields that are in InitProvider
-                  are merged into ForProvider when the resource is created. The same
-                  fields are also added to the terraform ignore_changes hook, to avoid
-                  updating them after creation. This is useful for fields that are
-                  required on creation, but we do not desire to update them after
-                  creation, for example because of an external controller is managing
-                  them, like an autoscaler.
+                description: |-
+                  THIS IS A BETA FIELD. It will be honored
+                  unless the Management Policies feature flag is disabled.
+                  InitProvider holds the same fields as ForProvider, with the exception
+                  of Identifier and other resource reference fields. The fields that are
+                  in InitProvider are merged into ForProvider when the resource is created.
+                  The same fields are also added to the terraform ignore_changes hook, to
+                  avoid updating them after creation. This is useful for fields that are
+                  required on creation, but we do not desire to update them after creation,
+                  for example because of an external controller is managing them, like an
+                  autoscaler.
                 properties:
                   elasticsearchConnection:
-                    description: '(Block List, Max: 1, Deprecated) Elasticsearch connection
-                      configuration block. This property will be removed in a future
-                      provider version. Configure the Elasticsearch connection via
-                      the provider configuration instead. (see below for nested schema)
-                      Elasticsearch connection configuration block. This property
-                      will be removed in a future provider version. Configure the
-                      Elasticsearch connection via the provider configuration instead.'
+                    description: |-
+                      (Block List, Max: 1, Deprecated) Elasticsearch connection configuration block. This property will be removed in a future provider version. Configure the Elasticsearch connection via the provider configuration instead. (see below for nested schema)
+                      Elasticsearch connection configuration block. This property will be removed in a future provider version. Configure the Elasticsearch connection via the provider configuration instead.
                     items:
                       properties:
+                        apiKeySecretRef:
+                          description: |-
+                            (String, Sensitive) API Key to use for authentication to Elasticsearch
+                            API Key to use for authentication to Elasticsearch
+                          properties:
+                            key:
+                              description: The key to select.
+                              type: string
+                            name:
+                              description: Name of the secret.
+                              type: string
+                            namespace:
+                              description: Namespace of the secret.
+                              type: string
+                          required:
+                          - key
+                          - name
+                          - namespace
+                          type: object
                         caData:
-                          description: encoded custom Certificate Authority certificate
+                          description: |-
+                            encoded custom Certificate Authority certificate
                             PEM-encoded custom Certificate Authority certificate
                           type: string
                         caFile:
-                          description: (String) Path to a custom Certificate Authority
-                            certificate Path to a custom Certificate Authority certificate
+                          description: |-
+                            (String) Path to a custom Certificate Authority certificate
+                            Path to a custom Certificate Authority certificate
                           type: string
                         certData:
-                          description: (String) PEM encoded certificate for client
-                            auth PEM encoded certificate for client auth
+                          description: |-
+                            (String) PEM encoded certificate for client auth
+                            PEM encoded certificate for client auth
                           type: string
                         certFile:
-                          description: (String) Path to a file containing the PEM
-                            encoded certificate for client auth Path to a file containing
-                            the PEM encoded certificate for client auth
+                          description: |-
+                            (String) Path to a file containing the PEM encoded certificate for client auth
+                            Path to a file containing the PEM encoded certificate for client auth
                           type: string
+                        endpointsSecretRef:
+                          items:
+                            type: string
+                          type: array
                         insecure:
-                          description: (Boolean) Disable TLS certificate validation
+                          description: |-
+                            (Boolean) Disable TLS certificate validation
                             Disable TLS certificate validation
                           type: boolean
+                        keyDataSecretRef:
+                          description: |-
+                            (String, Sensitive) PEM encoded private key for client auth
+                            PEM encoded private key for client auth
+                          properties:
+                            key:
+                              description: The key to select.
+                              type: string
+                            name:
+                              description: Name of the secret.
+                              type: string
+                            namespace:
+                              description: Namespace of the secret.
+                              type: string
+                          required:
+                          - key
+                          - name
+                          - namespace
+                          type: object
                         keyFile:
-                          description: (String) Path to a file containing the PEM
-                            encoded private key for client auth Path to a file containing
-                            the PEM encoded private key for client auth
+                          description: |-
+                            (String) Path to a file containing the PEM encoded private key for client auth
+                            Path to a file containing the PEM encoded private key for client auth
                           type: string
+                        passwordSecretRef:
+                          description: |-
+                            (String, Sensitive) Password to use for API authentication to Elasticsearch.
+                            Password to use for API authentication to Elasticsearch.
+                          properties:
+                            key:
+                              description: The key to select.
+                              type: string
+                            name:
+                              description: Name of the secret.
+                              type: string
+                            namespace:
+                              description: Namespace of the secret.
+                              type: string
+                          required:
+                          - key
+                          - name
+                          - namespace
+                          type: object
                         username:
-                          description: (String) Username to use for API authentication
-                            to Elasticsearch. Username to use for API authentication
-                            to Elasticsearch.
+                          description: |-
+                            (String) Username to use for API authentication to Elasticsearch.
+                            Username to use for API authentication to Elasticsearch.
                           type: string
                       type: object
                     type: array
                   expandWildcards:
-                    description: separated values, such as closed,hidden. Determines
-                      how wildcard patterns in the `indices` parameter match data
-                      streams and indices. Supports comma-separated values, such as
-                      `closed,hidden`.
+                    description: |-
+                      separated values, such as closed,hidden.
+                      Determines how wildcard patterns in the `indices` parameter match data streams and indices. Supports comma-separated values, such as `closed,hidden`.
                     type: string
                   expireAfter:
-                    description: (String) Time period after which a snapshot is considered
-                      expired and eligible for deletion. Time period after which a
-                      snapshot is considered expired and eligible for deletion.
+                    description: |-
+                      (String) Time period after which a snapshot is considered expired and eligible for deletion.
+                      Time period after which a snapshot is considered expired and eligible for deletion.
                     type: string
                   featureStates:
-                    description: (Set of String) Feature states to include in the
-                      snapshot. Feature states to include in the snapshot.
+                    description: |-
+                      (Set of String) Feature states to include in the snapshot.
+                      Feature states to include in the snapshot.
                     items:
                       type: string
                     type: array
+                    x-kubernetes-list-type: set
                   ignoreUnavailable:
-                    description: (Boolean) If false, the snapshot fails if any data
-                      stream or index in indices is missing or closed. If true, the
-                      snapshot ignores missing or closed data streams and indices.
-                      If `false`, the snapshot fails if any data stream or index in
-                      indices is missing or closed. If `true`, the snapshot ignores
-                      missing or closed data streams and indices.
+                    description: |-
+                      (Boolean) If false, the snapshot fails if any data stream or index in indices is missing or closed. If true, the snapshot ignores missing or closed data streams and indices.
+                      If `false`, the snapshot fails if any data stream or index in indices is missing or closed. If `true`, the snapshot ignores missing or closed data streams and indices.
                     type: boolean
                   includeGlobalState:
-                    description: (Boolean) If true, include the cluster state in the
-                      snapshot. If `true`, include the cluster state in the snapshot.
+                    description: |-
+                      (Boolean) If true, include the cluster state in the snapshot.
+                      If `true`, include the cluster state in the snapshot.
                     type: boolean
                   indices:
-                    description: separated list of data streams and indices to include
-                      in the snapshot. Comma-separated list of data streams and indices
-                      to include in the snapshot.
+                    description: |-
+                      separated list of data streams and indices to include in the snapshot.
+                      Comma-separated list of data streams and indices to include in the snapshot.
                     items:
                       type: string
                     type: array
                   maxCount:
-                    description: (Number) Maximum number of snapshots to retain, even
-                      if the snapshots have not yet expired. Maximum number of snapshots
-                      to retain, even if the snapshots have not yet expired.
+                    description: |-
+                      (Number) Maximum number of snapshots to retain, even if the snapshots have not yet expired.
+                      Maximum number of snapshots to retain, even if the snapshots have not yet expired.
                     type: number
                   metadata:
-                    description: (String) Attaches arbitrary metadata to the snapshot.
+                    description: |-
+                      (String) Attaches arbitrary metadata to the snapshot.
                       Attaches arbitrary metadata to the snapshot.
                     type: string
                   minCount:
-                    description: (Number) Minimum number of snapshots to retain, even
-                      if the snapshots have expired. Minimum number of snapshots to
-                      retain, even if the snapshots have expired.
+                    description: |-
+                      (Number) Minimum number of snapshots to retain, even if the snapshots have expired.
+                      Minimum number of snapshots to retain, even if the snapshots have expired.
                     type: number
                   name:
-                    description: (String) ID for the snapshot lifecycle policy you
-                      want to create or update. ID for the snapshot lifecycle policy
-                      you want to create or update.
+                    description: |-
+                      (String) ID for the snapshot lifecycle policy you want to create or update.
+                      ID for the snapshot lifecycle policy you want to create or update.
                     type: string
                   partial:
-                    description: (Boolean) If false, the entire snapshot will fail
-                      if one or more indices included in the snapshot do not have
-                      all primary shards available. If `false`, the entire snapshot
-                      will fail if one or more indices included in the snapshot do
-                      not have all primary shards available.
+                    description: |-
+                      (Boolean) If false, the entire snapshot will fail if one or more indices included in the snapshot do not have all primary shards available.
+                      If `false`, the entire snapshot will fail if one or more indices included in the snapshot do not have all primary shards available.
                     type: boolean
                   repository:
-                    description: (String) Repository used to store snapshots created
-                      by this policy. Repository used to store snapshots created by
-                      this policy.
+                    description: |-
+                      (String) Repository used to store snapshots created by this policy.
+                      Repository used to store snapshots created by this policy.
                     type: string
                   schedule:
-                    description: (String) Periodic or absolute schedule at which the
-                      policy creates snapshots. Periodic or absolute schedule at which
-                      the policy creates snapshots.
+                    description: |-
+                      (String) Periodic or absolute schedule at which the policy creates snapshots.
+                      Periodic or absolute schedule at which the policy creates snapshots.
                     type: string
                   snapshotName:
-                    description: (String) Name automatically assigned to each snapshot
-                      created by the policy. Name automatically assigned to each snapshot
-                      created by the policy.
+                    description: |-
+                      (String) Name automatically assigned to each snapshot created by the policy.
+                      Name automatically assigned to each snapshot created by the policy.
                     type: string
                 type: object
               managementPolicies:
                 default:
                 - '*'
-                description: 'THIS IS AN ALPHA FIELD. Do not use it in production.
-                  It is not honored unless the relevant Crossplane feature flag is
-                  enabled, and may be changed or removed without notice. ManagementPolicies
-                  specify the array of actions Crossplane is allowed to take on the
-                  managed and external resources. This field is planned to replace
-                  the DeletionPolicy field in a future release. Currently, both could
-                  be set independently and non-default values would be honored if
-                  the feature flag is enabled. If both are custom, the DeletionPolicy
-                  field will be ignored. See the design doc for more information:
-                  https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223
-                  and this one: https://github.com/crossplane/crossplane/blob/444267e84783136daa93568b364a5f01228cacbe/design/one-pager-ignore-changes.md'
+                description: |-
+                  THIS IS A BETA FIELD. It is on by default but can be opted out
+                  through a Crossplane feature flag.
+                  ManagementPolicies specify the array of actions Crossplane is allowed to
+                  take on the managed and external resources.
+                  This field is planned to replace the DeletionPolicy field in a future
+                  release. Currently, both could be set independently and non-default
+                  values would be honored if the feature flag is enabled. If both are
+                  custom, the DeletionPolicy field will be ignored.
+                  See the design doc for more information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223
+                  and this one: https://github.com/crossplane/crossplane/blob/444267e84783136daa93568b364a5f01228cacbe/design/one-pager-ignore-changes.md
                 items:
-                  description: A ManagementAction represents an action that the Crossplane
-                    controllers can take on an external resource.
+                  description: |-
+                    A ManagementAction represents an action that the Crossplane controllers
+                    can take on an external resource.
                   enum:
                   - Observe
                   - Create
@@ -427,9 +492,10 @@ spec:
               providerConfigRef:
                 default:
                   name: default
-                description: ProviderConfigReference specifies how the provider that
-                  will be used to create, observe, update, and delete this managed
-                  resource should be configured.
+                description: |-
+                  ProviderConfigReference specifies how the provider that will be used to
+                  create, observe, update, and delete this managed resource should be
+                  configured.
                 properties:
                   name:
                     description: Name of the referenced object.
@@ -439,57 +505,21 @@ spec:
                     properties:
                       resolution:
                         default: Required
-                        description: Resolution specifies whether resolution of this
-                          reference is required. The default is 'Required', which
-                          means the reconcile will fail if the reference cannot be
-                          resolved. 'Optional' means this reference will be a no-op
-                          if it cannot be resolved.
+                        description: |-
+                          Resolution specifies whether resolution of this reference is required.
+                          The default is 'Required', which means the reconcile will fail if the
+                          reference cannot be resolved. 'Optional' means this reference will be
+                          a no-op if it cannot be resolved.
                         enum:
                         - Required
                         - Optional
                         type: string
                       resolve:
-                        description: Resolve specifies when this reference should
-                          be resolved. The default is 'IfNotPresent', which will attempt
-                          to resolve the reference only when the corresponding field
-                          is not present. Use 'Always' to resolve the reference on
-                          every reconcile.
-                        enum:
-                        - Always
-                        - IfNotPresent
-                        type: string
-                    type: object
-                required:
-                - name
-                type: object
-              providerRef:
-                description: 'ProviderReference specifies the provider that will be
-                  used to create, observe, update, and delete this managed resource.
-                  Deprecated: Please use ProviderConfigReference, i.e. `providerConfigRef`'
-                properties:
-                  name:
-                    description: Name of the referenced object.
-                    type: string
-                  policy:
-                    description: Policies for referencing.
-                    properties:
-                      resolution:
-                        default: Required
-                        description: Resolution specifies whether resolution of this
-                          reference is required. The default is 'Required', which
-                          means the reconcile will fail if the reference cannot be
-                          resolved. 'Optional' means this reference will be a no-op
-                          if it cannot be resolved.
-                        enum:
-                        - Required
-                        - Optional
-                        type: string
-                      resolve:
-                        description: Resolve specifies when this reference should
-                          be resolved. The default is 'IfNotPresent', which will attempt
-                          to resolve the reference only when the corresponding field
-                          is not present. Use 'Always' to resolve the reference on
-                          every reconcile.
+                        description: |-
+                          Resolve specifies when this reference should be resolved. The default
+                          is 'IfNotPresent', which will attempt to resolve the reference only when
+                          the corresponding field is not present. Use 'Always' to resolve the
+                          reference on every reconcile.
                         enum:
                         - Always
                         - IfNotPresent
@@ -499,17 +529,19 @@ spec:
                 - name
                 type: object
               publishConnectionDetailsTo:
-                description: PublishConnectionDetailsTo specifies the connection secret
-                  config which contains a name, metadata and a reference to secret
-                  store config to which any connection details for this managed resource
-                  should be written. Connection details frequently include the endpoint,
-                  username, and password required to connect to the managed resource.
+                description: |-
+                  PublishConnectionDetailsTo specifies the connection secret config which
+                  contains a name, metadata and a reference to secret store config to
+                  which any connection details for this managed resource should be written.
+                  Connection details frequently include the endpoint, username,
+                  and password required to connect to the managed resource.
                 properties:
                   configRef:
                     default:
                       name: default
-                    description: SecretStoreConfigRef specifies which secret store
-                      config should be used for this ConnectionSecret.
+                    description: |-
+                      SecretStoreConfigRef specifies which secret store config should be used
+                      for this ConnectionSecret.
                     properties:
                       name:
                         description: Name of the referenced object.
@@ -519,21 +551,21 @@ spec:
                         properties:
                           resolution:
                             default: Required
-                            description: Resolution specifies whether resolution of
-                              this reference is required. The default is 'Required',
-                              which means the reconcile will fail if the reference
-                              cannot be resolved. 'Optional' means this reference
-                              will be a no-op if it cannot be resolved.
+                            description: |-
+                              Resolution specifies whether resolution of this reference is required.
+                              The default is 'Required', which means the reconcile will fail if the
+                              reference cannot be resolved. 'Optional' means this reference will be
+                              a no-op if it cannot be resolved.
                             enum:
                             - Required
                             - Optional
                             type: string
                           resolve:
-                            description: Resolve specifies when this reference should
-                              be resolved. The default is 'IfNotPresent', which will
-                              attempt to resolve the reference only when the corresponding
-                              field is not present. Use 'Always' to resolve the reference
-                              on every reconcile.
+                            description: |-
+                              Resolve specifies when this reference should be resolved. The default
+                              is 'IfNotPresent', which will attempt to resolve the reference only when
+                              the corresponding field is not present. Use 'Always' to resolve the
+                              reference on every reconcile.
                             enum:
                             - Always
                             - IfNotPresent
@@ -548,21 +580,22 @@ spec:
                       annotations:
                         additionalProperties:
                           type: string
-                        description: Annotations are the annotations to be added to
-                          connection secret. - For Kubernetes secrets, this will be
-                          used as "metadata.annotations". - It is up to Secret Store
-                          implementation for others store types.
+                        description: |-
+                          Annotations are the annotations to be added to connection secret.
+                          - For Kubernetes secrets, this will be used as "metadata.annotations".
+                          - It is up to Secret Store implementation for others store types.
                         type: object
                       labels:
                         additionalProperties:
                           type: string
-                        description: Labels are the labels/tags to be added to connection
-                          secret. - For Kubernetes secrets, this will be used as "metadata.labels".
-                          - It is up to Secret Store implementation for others store
-                          types.
+                        description: |-
+                          Labels are the labels/tags to be added to connection secret.
+                          - For Kubernetes secrets, this will be used as "metadata.labels".
+                          - It is up to Secret Store implementation for others store types.
                         type: object
                       type:
-                        description: Type is the SecretType for the connection secret.
+                        description: |-
+                          Type is the SecretType for the connection secret.
                           - Only valid for Kubernetes Secret Stores.
                         type: string
                     type: object
@@ -573,14 +606,15 @@ spec:
                 - name
                 type: object
               writeConnectionSecretToRef:
-                description: WriteConnectionSecretToReference specifies the namespace
-                  and name of a Secret to which any connection details for this managed
-                  resource should be written. Connection details frequently include
-                  the endpoint, username, and password required to connect to the
-                  managed resource. This field is planned to be replaced in a future
-                  release in favor of PublishConnectionDetailsTo. Currently, both
-                  could be set independently and connection details would be published
-                  to both without affecting each other.
+                description: |-
+                  WriteConnectionSecretToReference specifies the namespace and name of a
+                  Secret to which any connection details for this managed resource should
+                  be written. Connection details frequently include the endpoint, username,
+                  and password required to connect to the managed resource.
+                  This field is planned to be replaced in a future release in favor of
+                  PublishConnectionDetailsTo. Currently, both could be set independently
+                  and connection details would be published to both without affecting
+                  each other.
                 properties:
                   name:
                     description: Name of the secret.
@@ -596,145 +630,143 @@ spec:
             - forProvider
             type: object
             x-kubernetes-validations:
-            - message: name is a required parameter
+            - message: spec.forProvider.name is a required parameter
               rule: '!(''*'' in self.managementPolicies || ''Create'' in self.managementPolicies
                 || ''Update'' in self.managementPolicies) || has(self.forProvider.name)
-                || has(self.initProvider.name)'
-            - message: repository is a required parameter
+                || (has(self.initProvider) && has(self.initProvider.name))'
+            - message: spec.forProvider.repository is a required parameter
               rule: '!(''*'' in self.managementPolicies || ''Create'' in self.managementPolicies
                 || ''Update'' in self.managementPolicies) || has(self.forProvider.repository)
-                || has(self.initProvider.repository)'
-            - message: schedule is a required parameter
+                || (has(self.initProvider) && has(self.initProvider.repository))'
+            - message: spec.forProvider.schedule is a required parameter
               rule: '!(''*'' in self.managementPolicies || ''Create'' in self.managementPolicies
                 || ''Update'' in self.managementPolicies) || has(self.forProvider.schedule)
-                || has(self.initProvider.schedule)'
+                || (has(self.initProvider) && has(self.initProvider.schedule))'
           status:
             description: SnapshotLifecycleStatus defines the observed state of SnapshotLifecycle.
             properties:
               atProvider:
                 properties:
                   elasticsearchConnection:
-                    description: '(Block List, Max: 1, Deprecated) Elasticsearch connection
-                      configuration block. This property will be removed in a future
-                      provider version. Configure the Elasticsearch connection via
-                      the provider configuration instead. (see below for nested schema)
-                      Elasticsearch connection configuration block. This property
-                      will be removed in a future provider version. Configure the
-                      Elasticsearch connection via the provider configuration instead.'
+                    description: |-
+                      (Block List, Max: 1, Deprecated) Elasticsearch connection configuration block. This property will be removed in a future provider version. Configure the Elasticsearch connection via the provider configuration instead. (see below for nested schema)
+                      Elasticsearch connection configuration block. This property will be removed in a future provider version. Configure the Elasticsearch connection via the provider configuration instead.
                     items:
                       properties:
                         caData:
-                          description: encoded custom Certificate Authority certificate
+                          description: |-
+                            encoded custom Certificate Authority certificate
                             PEM-encoded custom Certificate Authority certificate
                           type: string
                         caFile:
-                          description: (String) Path to a custom Certificate Authority
-                            certificate Path to a custom Certificate Authority certificate
+                          description: |-
+                            (String) Path to a custom Certificate Authority certificate
+                            Path to a custom Certificate Authority certificate
                           type: string
                         certData:
-                          description: (String) PEM encoded certificate for client
-                            auth PEM encoded certificate for client auth
+                          description: |-
+                            (String) PEM encoded certificate for client auth
+                            PEM encoded certificate for client auth
                           type: string
                         certFile:
-                          description: (String) Path to a file containing the PEM
-                            encoded certificate for client auth Path to a file containing
-                            the PEM encoded certificate for client auth
+                          description: |-
+                            (String) Path to a file containing the PEM encoded certificate for client auth
+                            Path to a file containing the PEM encoded certificate for client auth
                           type: string
                         insecure:
-                          description: (Boolean) Disable TLS certificate validation
+                          description: |-
+                            (Boolean) Disable TLS certificate validation
                             Disable TLS certificate validation
                           type: boolean
                         keyFile:
-                          description: (String) Path to a file containing the PEM
-                            encoded private key for client auth Path to a file containing
-                            the PEM encoded private key for client auth
+                          description: |-
+                            (String) Path to a file containing the PEM encoded private key for client auth
+                            Path to a file containing the PEM encoded private key for client auth
                           type: string
                         username:
-                          description: (String) Username to use for API authentication
-                            to Elasticsearch. Username to use for API authentication
-                            to Elasticsearch.
+                          description: |-
+                            (String) Username to use for API authentication to Elasticsearch.
+                            Username to use for API authentication to Elasticsearch.
                           type: string
                       type: object
                     type: array
                   expandWildcards:
-                    description: separated values, such as closed,hidden. Determines
-                      how wildcard patterns in the `indices` parameter match data
-                      streams and indices. Supports comma-separated values, such as
-                      `closed,hidden`.
+                    description: |-
+                      separated values, such as closed,hidden.
+                      Determines how wildcard patterns in the `indices` parameter match data streams and indices. Supports comma-separated values, such as `closed,hidden`.
                     type: string
                   expireAfter:
-                    description: (String) Time period after which a snapshot is considered
-                      expired and eligible for deletion. Time period after which a
-                      snapshot is considered expired and eligible for deletion.
+                    description: |-
+                      (String) Time period after which a snapshot is considered expired and eligible for deletion.
+                      Time period after which a snapshot is considered expired and eligible for deletion.
                     type: string
                   featureStates:
-                    description: (Set of String) Feature states to include in the
-                      snapshot. Feature states to include in the snapshot.
+                    description: |-
+                      (Set of String) Feature states to include in the snapshot.
+                      Feature states to include in the snapshot.
                     items:
                       type: string
                     type: array
+                    x-kubernetes-list-type: set
                   id:
                     description: (String) Internal identifier of the resource
                     type: string
                   ignoreUnavailable:
-                    description: (Boolean) If false, the snapshot fails if any data
-                      stream or index in indices is missing or closed. If true, the
-                      snapshot ignores missing or closed data streams and indices.
-                      If `false`, the snapshot fails if any data stream or index in
-                      indices is missing or closed. If `true`, the snapshot ignores
-                      missing or closed data streams and indices.
+                    description: |-
+                      (Boolean) If false, the snapshot fails if any data stream or index in indices is missing or closed. If true, the snapshot ignores missing or closed data streams and indices.
+                      If `false`, the snapshot fails if any data stream or index in indices is missing or closed. If `true`, the snapshot ignores missing or closed data streams and indices.
                     type: boolean
                   includeGlobalState:
-                    description: (Boolean) If true, include the cluster state in the
-                      snapshot. If `true`, include the cluster state in the snapshot.
+                    description: |-
+                      (Boolean) If true, include the cluster state in the snapshot.
+                      If `true`, include the cluster state in the snapshot.
                     type: boolean
                   indices:
-                    description: separated list of data streams and indices to include
-                      in the snapshot. Comma-separated list of data streams and indices
-                      to include in the snapshot.
+                    description: |-
+                      separated list of data streams and indices to include in the snapshot.
+                      Comma-separated list of data streams and indices to include in the snapshot.
                     items:
                       type: string
                     type: array
                   maxCount:
-                    description: (Number) Maximum number of snapshots to retain, even
-                      if the snapshots have not yet expired. Maximum number of snapshots
-                      to retain, even if the snapshots have not yet expired.
+                    description: |-
+                      (Number) Maximum number of snapshots to retain, even if the snapshots have not yet expired.
+                      Maximum number of snapshots to retain, even if the snapshots have not yet expired.
                     type: number
                   metadata:
-                    description: (String) Attaches arbitrary metadata to the snapshot.
+                    description: |-
+                      (String) Attaches arbitrary metadata to the snapshot.
                       Attaches arbitrary metadata to the snapshot.
                     type: string
                   minCount:
-                    description: (Number) Minimum number of snapshots to retain, even
-                      if the snapshots have expired. Minimum number of snapshots to
-                      retain, even if the snapshots have expired.
+                    description: |-
+                      (Number) Minimum number of snapshots to retain, even if the snapshots have expired.
+                      Minimum number of snapshots to retain, even if the snapshots have expired.
                     type: number
                   name:
-                    description: (String) ID for the snapshot lifecycle policy you
-                      want to create or update. ID for the snapshot lifecycle policy
-                      you want to create or update.
+                    description: |-
+                      (String) ID for the snapshot lifecycle policy you want to create or update.
+                      ID for the snapshot lifecycle policy you want to create or update.
                     type: string
                   partial:
-                    description: (Boolean) If false, the entire snapshot will fail
-                      if one or more indices included in the snapshot do not have
-                      all primary shards available. If `false`, the entire snapshot
-                      will fail if one or more indices included in the snapshot do
-                      not have all primary shards available.
+                    description: |-
+                      (Boolean) If false, the entire snapshot will fail if one or more indices included in the snapshot do not have all primary shards available.
+                      If `false`, the entire snapshot will fail if one or more indices included in the snapshot do not have all primary shards available.
                     type: boolean
                   repository:
-                    description: (String) Repository used to store snapshots created
-                      by this policy. Repository used to store snapshots created by
-                      this policy.
+                    description: |-
+                      (String) Repository used to store snapshots created by this policy.
+                      Repository used to store snapshots created by this policy.
                     type: string
                   schedule:
-                    description: (String) Periodic or absolute schedule at which the
-                      policy creates snapshots. Periodic or absolute schedule at which
-                      the policy creates snapshots.
+                    description: |-
+                      (String) Periodic or absolute schedule at which the policy creates snapshots.
+                      Periodic or absolute schedule at which the policy creates snapshots.
                     type: string
                   snapshotName:
-                    description: (String) Name automatically assigned to each snapshot
-                      created by the policy. Name automatically assigned to each snapshot
-                      created by the policy.
+                    description: |-
+                      (String) Name automatically assigned to each snapshot created by the policy.
+                      Name automatically assigned to each snapshot created by the policy.
                     type: string
                 type: object
               conditions:
@@ -743,14 +775,23 @@ spec:
                   description: A Condition that may apply to a resource.
                   properties:
                     lastTransitionTime:
-                      description: LastTransitionTime is the last time this condition
-                        transitioned from one status to another.
+                      description: |-
+                        LastTransitionTime is the last time this condition transitioned from one
+                        status to another.
                       format: date-time
                       type: string
                     message:
-                      description: A Message containing details about this condition's
-                        last transition from one status to another, if any.
+                      description: |-
+                        A Message containing details about this condition's last transition from
+                        one status to another, if any.
                       type: string
+                    observedGeneration:
+                      description: |-
+                        ObservedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      type: integer
                     reason:
                       description: A Reason for this condition's last transition from
                         one status to another.
@@ -760,8 +801,9 @@ spec:
                         False, or Unknown?
                       type: string
                     type:
-                      description: Type of this condition. At most one of each condition
-                        type may apply to a resource at any point in time.
+                      description: |-
+                        Type of this condition. At most one of each condition type may apply to
+                        a resource at any point in time.
                       type: string
                   required:
                   - lastTransitionTime
@@ -770,6 +812,16 @@ spec:
                   - type
                   type: object
                 type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              observedGeneration:
+                description: |-
+                  ObservedGeneration is the latest metadata.generation
+                  which resulted in either a ready state, or stalled due to error
+                  it can not recover from without human intervention.
+                format: int64
+                type: integer
             type: object
         required:
         - spec

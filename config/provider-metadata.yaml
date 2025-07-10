@@ -237,6 +237,8 @@ resources:
                   "policy_type": "match",
                   "query": "${jsonencode({\n    bool = {\n      must     = [{ term = { b = \"A\" } }]\n      must_not = [{ term = { a = \"B\" } }]\n    }\n  })}"
                 }
+              references:
+                indices: elasticstack_elasticsearch_index.my_index.name
               dependencies:
                 elasticstack_elasticsearch_index.my_index: |-
                     {
@@ -609,6 +611,8 @@ resources:
                     "${data.elasticstack_elasticsearch_ingest_processor_json.parse_string_source.json}"
                   ]
                 }
+              references:
+                processors: data.elasticstack_elasticsearch_ingest_processor_set.set_count.json
         argumentDocs:
             api_key: (String, Sensitive) API Key to use for authentication to Elasticsearch
             ca_data: (String) PEM-encoded custom Certificate Authority certificate
